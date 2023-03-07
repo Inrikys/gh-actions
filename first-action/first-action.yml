@@ -1,0 +1,13 @@
+name: First Workflow
+# workflow_dispatch -> inicia manualmente
+on: workflow_dispatch 
+jobs:
+  # nome do job, pode ser qualquer coisa, não é uma palavra reservada
+  first-job:
+    # github actions runners -> https://docs.github.com/pt/actions/using-github-hosted-runners/about-github-hosted-runners
+    runs-on: ubuntu-latest
+    steps:
+      - name: Print greeting
+        run: echo "Hello World"
+      - name: Print goodbye
+        run: echo "Done - bye!"
