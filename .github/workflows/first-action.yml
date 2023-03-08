@@ -1,9 +1,11 @@
-name: First Workflow
+name: First Workflow - Hello World
 # workflow_dispatch -> inicia manualmente
+# https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows
 on: workflow_dispatch 
 jobs:
   # nome do job, pode ser qualquer coisa, não é uma palavra reservada
   first-job:
+    # o Runner é disponibilizado por um serverless do github
     # github actions runners -> https://docs.github.com/pt/actions/using-github-hosted-runners/about-github-hosted-runners
     runs-on: ubuntu-latest
     steps:
