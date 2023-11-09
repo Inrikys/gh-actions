@@ -36,6 +36,7 @@ jobs:
         with:
           node-version: 18
       - name: Build project
+        working-directory: ./second-action-react-demo
         run: npm run build
       - name: Deploy
         run: echo ˜Deploying ...˜
