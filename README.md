@@ -124,4 +124,110 @@ jobs:
         run: npm test
 ```
 
+# Rodando Jobs em paralelo
 
+Para rodar os Jobs em paralelo é bem simples, basta apenas adicionar mais um objeto dentro de 'jobs'
+
+Segue exemplo abaixo:
+
+```
+name: Third Workflow - Test and Deploy (parallel) React Demo
+on: push
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      # primeiro é necessário baixar o nosso código do repositório
+      # no serverless do github, onde o runner é executado
+      - name: Get code
+        # invés de utilizar runs-on e passar os comandos, também é possível
+        # utilizar actions já prontas que podem ser encontradas no marketplace
+        # do github, por exemplo -> https://github.com/marketplace/actions/checkout
+        uses: actions/checkout@v3
+        #Também é possível encontrar os programas pré-instalados no runner
+        # https://docs.github.com/pt/actions/using-github-hosted-runners/about-github-hosted-runners
+        # >
+        # https://github.com/actions/runner-images/blob/main/images/linux/Ubuntu2204-Readme.md
+        # já tem Node instalado, mas também seria possível utilizar uma action do marketplace
+      - name: Install NodeJS
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+      - name: Install dependencies
+        working-directory: ./second-action-react-demo
+        run: npm ci
+      - name: Run tests
+        working-directory: ./second-action-react-demo
+        run: npm test
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Get code
+        uses: actions/checkout@v3
+      - name: Install NodeJS
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+      - name: Install dependencies
+        working-directory: ./second-action-react-demo
+        run: npm ci
+      - name: Build project
+        working-directory: ./second-action-react-demo
+        run: npm run build
+      - name: Deploy
+        run: echo ˜Deploying ...˜
+```
+
+# Rodando Jobs em série
+
+Para rodar uma Job em sequencia de uma outra Job é bem simples, basta apenas adicionar o atributo "needs" nas propriedades da Job e setar o identificador da Job que deseja executar anterior a que está sendo configurada
+
+```
+name: Forth Workflow - Test and Deploy (sequence) React Demo
+on: push
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      # primeiro é necessário baixar o nosso código do repositório
+      # no serverless do github, onde o runner é executado
+      - name: Get code
+        # invés de utilizar runs-on e passar os comandos, também é possível
+        # utilizar actions já prontas que podem ser encontradas no marketplace
+        # do github, por exemplo -> https://github.com/marketplace/actions/checkout
+        uses: actions/checkout@v3
+        #Também é possível encontrar os programas pré-instalados no runner
+        # https://docs.github.com/pt/actions/using-github-hosted-runners/about-github-hosted-runners
+        # >
+        # https://github.com/actions/runner-images/blob/main/images/linux/Ubuntu2204-Readme.md
+        # já tem Node instalado, mas também seria possível utilizar uma action do marketplace
+      - name: Install NodeJS
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+      - name: Install dependencies
+        working-directory: ./second-action-react-demo
+        run: npm ci
+      - name: Run tests
+        working-directory: ./second-action-react-demo
+        run: npm test
+  deploy:
+    # adiciona o atributo needs com o identificados do Job que seria o executado anterior a esse
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Get code
+        uses: actions/checkout@v3
+      - name: Install NodeJS
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+      - name: Install dependencies
+        working-directory: ./second-action-react-demo
+        run: npm ci
+      - name: Build project
+        working-directory: ./second-action-react-demo
+        run: npm run build
+      - name: Deploy
+        run: echo ˜Deploying ...˜
+```
