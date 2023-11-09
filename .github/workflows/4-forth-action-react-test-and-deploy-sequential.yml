@@ -1,4 +1,4 @@
-name: Third Workflow - Test and Deploy (parallel) React Demo
+name: Forth Workflow - Test and Deploy (sequence) React Demo
 on: push
 jobs:
   test:
