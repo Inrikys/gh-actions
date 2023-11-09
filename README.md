@@ -76,10 +76,52 @@ Outros:
 mais detalhes: https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows
 
 
+# Action
 
+O que são Actions?
+Uma Action é uma aplicacao que performa uma automacao frequentemente utilizada. Pode ser criada por conta própria ou utilizada por fontes oficiais de terceiros.
 
+No GitHub temos uma aba de Marktplace onde pode ser encontradas várias Actions criadas por fontes oficiais. Isso facilita a criacao de Workflows, já que não é necessário recriar processos já criados pelo próprio time do GitHub.
 
+## Action na prática
 
+(.github>workflows>second-action-react-test.yml)
 
+O Workflow abaixo é utilizado para rodar os testes da aplicacao encontrada no diretório second-action-react-demo
+
+É um exemplo de utilizacao do dia-a-dia. Podemos criar um Workflow que valida se nenhum teste quebrou antes de enviar a atualizacao para producao ou até mesmo homologacao.
+
+Pode ser notado o uso de Actions a partir do comando "uses", que indica o nome de uma Action encontrada no Marketplace
+
+```
+name: Second Workflow - Test React Demo
+on: push
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      # primeiro é necessário baixar o nosso código do repositório
+      # no serverless do github, onde o runner é executado
+      - name: Get code
+        # invés de utilizar runs-on e passar os comandos, também é possível
+        # utilizar actions já prontas que podem ser encontradas no marketplace
+        # do github, por exemplo -> https://github.com/marketplace/actions/checkout
+        uses: actions/checkout@v3
+        #Também é possível encontrar os programas pré-instalados no runner
+        # https://docs.github.com/pt/actions/using-github-hosted-runners/about-github-hosted-runners
+        # >
+        # https://github.com/actions/runner-images/blob/main/images/linux/Ubuntu2204-Readme.md
+        # já tem Node instalado, mas também seria possível utilizar uma action do marketplace
+      - name: Install NodeJS
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+      - name: Install dependencies
+        working-directory: ./second-action-react-demo
+        run: npm ci
+      - name: Run tests
+        working-directory: ./second-action-react-demo
+        run: npm test
+```
 
 
