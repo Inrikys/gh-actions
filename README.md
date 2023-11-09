@@ -29,7 +29,7 @@ Para criar um do zero, o GitHub utiliza arquivos no formato .yml, dentro da past
 
 Workflow simples que executa comandos linux no runner ubuntu-latest
 
-``
+```
 # nome do Workflow
 name: First Workflow - Hello World
 # workflow_dispatch -> inicia manualmente
@@ -48,7 +48,7 @@ jobs:
       - name: Print goodbye
         run: echo "Done - bye!"
 
-``
+```
 
 No exemplo acima, podemos ver na prática o que seria um Workflow com um Job e dois Steps.
 
