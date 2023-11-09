@@ -1,4 +1,4 @@
-name: Second Workflow - Test React Demo
+name: Third Workflow - Test and Deploy React Demo
 on: push
 jobs:
   test:
@@ -35,6 +35,9 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: 18
+      - name: Install dependencies
+        working-directory: ./second-action-react-demo
+        run: npm ci
       - name: Build project
         working-directory: ./second-action-react-demo
         run: npm run build
