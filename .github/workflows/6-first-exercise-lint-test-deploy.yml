@@ -14,11 +14,9 @@ jobs:
           - name: Install dependencies
             working-directory: ./first-exercise
             run: npm ci
-          - name: Init Lint
+          - name: Lint
             working-directory: ./first-exercise
-            run: |
-              npm init @eslint/config
-              npm run lint
+            run: npm run lint
     test:
         name: Test
         runs-on: ubuntu-latest
@@ -53,3 +51,5 @@ jobs:
           - name: Build application
             working-directory: ./first-exercise
             run: npm run build
+          - name: Deploying
+            run: echo "Deploying...""
