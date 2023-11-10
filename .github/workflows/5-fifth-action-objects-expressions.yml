@@ -1,0 +1,12 @@
+name: Output information - objects and expressions
+on: workflow_dispatch
+jobs:
+    info:
+        runs-on: ubuntu-latest
+        steps:
+          - name: Output GitHub context
+            # a variavel github (objeto) já existe no contexto do GitHub Actions
+            # https://docs.github.com/en/actions/learn-github-actions/contexts
+            # a funcao toJson também existe no contexto do GitHub Actions
+            # https://docs.github.com/en/actions/learn-github-actions/expressions
+            run: echo "${{toJson(github)}}"

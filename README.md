@@ -231,3 +231,14 @@ jobs:
       - name: Deploy
         run: echo ˜Deploying ...˜
 ```
+
+# Multiplos eventos
+
+Também é possível definir mais de um evento que servem de gatilho para execucao do Workflow. Para isso, é necessário apenas adicionar colchetes e separar os eventos por vírgula.
+Exemplo:
+```
+on: [push, workflow_dispatch]
+```
+
+
+
