@@ -1,0 +1,53 @@
+name: First Exercise - Lint, Test & Deploy
+on: push
+jobs:
+    lint:
+        name: Lint
+        runs-on: ubuntu-latest
+        steps:
+          - name: Get code
+            uses: actions/checkout@v3
+          - name: Install NodeJs
+            uses: actions/setup-node@v3
+            with:
+                 node-version: 18
+          - name: Install dependencies
+            working-directory: ./first-exercise
+            run: npm ci
+          - name: Check Lint
+            working-directory: ./first-exercise
+            run: npm lint
+    test:
+        name: Test
+        runs-on: ubuntu-latest
+        needs: lint
+        steps:
+          - name: Get code
+            uses: actions/checkout@v3
+          - name: Install NodeJs
+            uses: actions/setup-node@v3
+            with: 
+                node-version: 18
+          - name: Install dependencies
+            working-directory: ./first-exercise
+            run: npm ci
+          - name: Test
+            working-directory: ./first-exercise
+            run: npm test
+    build:
+        name: Deploy
+        runs-on: ubuntu-latest
+        needs: test
+        steps:
+          - name: Get code
+            uses: actions/checkout@v3
+          - name: Install NodeJs
+            uses: actions/setup-node@v3
+            with:
+                node-version: 18
+          - name: Install dependencies
+            working-directory: ./first-exercise
+            run: npm ci
+          - name: Build application
+            working-directory: ./first-exercise
+            run: npm build
