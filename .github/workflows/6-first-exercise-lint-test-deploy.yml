@@ -14,6 +14,9 @@ jobs:
           - name: Install dependencies
             working-directory: ./first-exercise
             run: npm ci
+          - name: Init Lint
+            working-directory: ./first-exercise
+            run: npm init @eslint/config
           - name: Check Lint
             working-directory: ./first-exercise
             run: npm run lint
