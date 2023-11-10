@@ -16,10 +16,9 @@ jobs:
             run: npm ci
           - name: Init Lint
             working-directory: ./first-exercise
-            run: npm init @eslint/config
-          - name: Check Lint
-            working-directory: ./first-exercise
-            run: npm run lint
+            run: |
+              npm init @eslint/config
+              npm run lint
     test:
         name: Test
         runs-on: ubuntu-latest
