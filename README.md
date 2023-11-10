@@ -240,5 +240,18 @@ Exemplo:
 on: [push, workflow_dispatch]
 ```
 
+# Controle de eventos
+
+Vamos supor que não é desejavel executar algum Workflow específico na branch develop, e queremos que o evento seja disparado apenas para a branch principal, main
+
+Para isso vamos entender dois novos conceitos: Activity Types e Filters
 
 
+## Activity Types
+Cada evento possui tipos de atividades, por exemplo:
+pull_request -> opened, closed, edited etc
+
+Pode ser percebido que temos a oportunidade de controlar melhor nossos Workflows
+
+## Filters
+Podemos configurar a branch target que o evento será escutado
