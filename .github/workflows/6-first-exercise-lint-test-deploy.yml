@@ -11,8 +11,6 @@ jobs:
           - name: Install dependencies
             working-directory: ./first-exercise
             run: npm ci
-          - name: Init eslint
-            run: eslint --init
           - name: Lint
             working-directory: ./first-exercise
             run: npm run lint
@@ -25,8 +23,6 @@ jobs:
           - name: Install dependencies
             working-directory: ./first-exercise
             run: npm ci
-          - name: Init eslint
-            run: eslint --init
           - name: Test
             working-directory: ./first-exercise
             run: npm run test
@@ -39,8 +35,6 @@ jobs:
           - name: Install dependencies
             working-directory: ./first-exercise
             run: npm ci
-          - name: Init eslint
-            run: eslint --init
           - name: Build application
             working-directory: ./first-exercise
             run: npm run build
