@@ -2,18 +2,18 @@ name: First Exercise - Lint, Test & Deploy
 on: push
 jobs:
     # está ocorrendo um erro ao executar comando lint
-    # lint:
-    #     name: Lint
-    #     runs-on: ubuntu-latest
-    #     steps:
-    #       - name: Get code
-    #         uses: actions/checkout@v3
-    #       - name: Install dependencies
-    #         working-directory: ./first-exercise
-    #         run: npm ci
-    #       - name: Lint
-    #         working-directory: ./first-exercise
-    #         run: npm run lint
+    lint:
+        name: Lint
+        runs-on: ubuntu-latest
+        steps:
+          - name: Get code
+            uses: actions/checkout@v3
+          - name: Install dependencies
+            working-directory: ./first-exercise
+            run: npm install
+          - name: Lint
+            working-directory: ./first-exercise
+            run: npm run lint
     test:
         name: Test
         runs-on: ubuntu-latest
