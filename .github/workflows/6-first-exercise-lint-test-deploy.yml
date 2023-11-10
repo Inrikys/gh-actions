@@ -16,7 +16,7 @@ jobs:
             run: npm ci
           - name: Check Lint
             working-directory: ./first-exercise
-            run: npm lint
+            run: npm run lint
     test:
         name: Test
         runs-on: ubuntu-latest
@@ -33,7 +33,7 @@ jobs:
             run: npm ci
           - name: Test
             working-directory: ./first-exercise
-            run: npm test
+            run: npm run test
     build:
         name: Deploy
         runs-on: ubuntu-latest
@@ -50,4 +50,4 @@ jobs:
             run: npm ci
           - name: Build application
             working-directory: ./first-exercise
-            run: npm build
+            run: npm run build
