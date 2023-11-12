@@ -251,7 +251,75 @@ Para isso vamos entender dois novos conceitos: Activity Types e Filters
 Cada evento possui tipos de atividades, por exemplo:
 pull_request -> opened, closed, edited etc
 
+```
+name:
+on:
+  # setando tipos no evento de pull request
+  pull_request:
+    types:
+      - opened
+      - closed
+      - edited
+  # adicionando um novo evento, mas com tipos padrões
+  workflow_dispatch:
+jobs:
+  ...
+
+```
+
 Pode ser percebido que temos a oportunidade de controlar melhor nossos Workflows
 
+Obs: cada evento tem activity types default caso nenhuma seja especificada
+
+Mais detalhes: https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows
+
+
 ## Filters
-Podemos configurar a branch target que o evento será escutado
+Podemos configurar a branch target que o evento será escutado. 
+
+Por padrão, os Workflows vão ser executados na branch principal.
+Para especificar a branch, é necessário apenas adicionar o atributo "branches" dentro do objeto evento.
+
+Segue exemplo abaixo:
+
+```
+name:
+on:
+  push:
+    branches:
+      - main
+      - dev-* # dev-exemplo
+      - feat/** # feat/ajuste-botao-home
+      - feature/** # feature/ajuste-contrato
+jobs:
+  ...
+
+```
+
+Também é possível filtrar por path files
+Segue exemplo abaixo:
+
+```
+name:
+on:
+  push:
+    branches:
+      - main
+      - dev-* # dev-exemplo
+      - feat/** # feat/ajuste-botao-home
+      - feature/** # feature/ajuste-contrato
+    # ignora evento quando a alteracao foi nos seguintes arquivos
+    paths-ignore:
+      - '.github/workflows/*'
+    # vai ser ativado apenas se algum desses arquivos forem alterados
+    paths:
+      - 'src/main/*'
+jobs:
+  ...
+
+```
+
+
+
+
+
