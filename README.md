@@ -273,6 +273,8 @@ Obs: cada evento tem activity types default caso nenhuma seja especificada
 
 Mais detalhes: https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows
 
+## Forked pull_requests
+Quando um repositório é forked, caso as atividades padrões tenha sido setadas para o evento de pull_request, no repositório original o Workflow vai estar escutando o evento, porém uma aprovacao será necessária. Então é necessário ter cuidado com esse possível cenário.
 
 ## Filters
 Podemos configurar a branch target que o evento será escutado. 
@@ -313,7 +315,7 @@ on:
       - '.github/workflows/*'
     # vai ser ativado apenas se algum desses arquivos forem alterados
     paths:
-      - 'src/main/*'
+      - 'src/main/**'
 jobs:
   ...
 
