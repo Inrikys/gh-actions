@@ -43,13 +43,18 @@ jobs:
             uses: actions/upload-artifact@v3
             with:
               name: dist-files
-              path: |
-                ./first-exercise/dist
-                ./first-exercise/package.json
+              path: ./first-exercise/dist
     deploy:
         name:
         needs: build
         runs-on: ubuntu-latest
         steps:
+          # baixar artefato gerado no passo anterior
+          - name: Get build artifacts
+            uses: actions/download-artifact@v3
+            with:
+              name: dist-files
+          - name: Output contents
+            run: ls
           - name: Deploying
             run: echo "Deploying..."
