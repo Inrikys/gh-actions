@@ -321,6 +321,16 @@ jobs:
 
 ```
 
+# Skip Workflows
+
+Caso a ultima mudanca que ocorreu no código foi irrelevante para o funcionamento da aplicacao, como por exemplo, um comentário, é possível subir as alteracoes sem disparar o fluxo de Workflows
+
+Exemplo: git commit -m "docs: ajuste no readme [skip ci]"
+
+o [skip ci] faz com que os Workflows não sejam disparados.
+
+Mais detalhes: https://docs.github.com/en/actions/managing-workflow-runs/skipping-workflow-runs
+
 
 
 

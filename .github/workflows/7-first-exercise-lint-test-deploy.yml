@@ -39,5 +39,17 @@ jobs:
           - name: Build application
             working-directory: ./first-exercise
             run: npm run build
+          - name: Upload artifact
+            uses: actions/upload-artifact@v3
+            with:
+              name: dist-files
+              path: |
+                ./first-exercise/dist
+                ./first-exercise/package.json
+    deploy:
+        name:
+        needs: build
+        runs-on: ubuntu-latest
+        steps:
           - name: Deploying
             run: echo "Deploying..."
