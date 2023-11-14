@@ -27,9 +27,11 @@ jobs:
             working-directory: ./first-exercise
             run: npm run test
     build:
-        name: Deploy
+        name: Build
         needs: test
         runs-on: ubuntu-latest
+        outputs:
+          script-file: ${{ steps.publish.outputs.script-file }}
         steps:
           - name: Get code
             uses: actions/checkout@v3
@@ -39,13 +41,17 @@ jobs:
           - name: Build application
             working-directory: ./first-exercise
             run: npm run build
+            # busca nome do arquivo JS na pasta dist
+          - name: Publish JS filena
+            id: publish
+            run: find ./first-exercise/dist/assets/*.js -type f -execdir echo 'script-file={}' >> $GITHUB_OUTPUT ';'
           - name: Upload artifact
             uses: actions/upload-artifact@v3
             with:
               name: dist-files
               path: ./first-exercise/dist
     deploy:
-        name:
+        name: Deploy
         needs: build
         runs-on: ubuntu-latest
         steps:
@@ -55,6 +61,6 @@ jobs:
             with:
               name: dist-files
           - name: Output contents
-            run: ls
+            run: 
           - name: Deploying
             run: echo "Deploying..."
