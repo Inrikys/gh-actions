@@ -10,6 +10,9 @@ jobs:
           - name: Cache dependencies
             uses: actions/cache@v3
             with:
+              # se já existe a pasta .npm, ele verifica o hash do arquivo package-lock.json, se for o mesmo hash, utilizado cache
+              # caso contrário, gera outro
+              # https://github.com/actions/cache
               path: ˜/.npm 
               # hashFiles produz um hash para os arquivos, facilitando a identificacao caso haja alguma mudanca para atualizar o cache
               key: deps-node-modules-${{ hashFiles('**/package-lock.json') }}
