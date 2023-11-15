@@ -332,6 +332,76 @@ o [skip ci] faz com que os Workflows não sejam disparados.
 Mais detalhes: https://docs.github.com/en/actions/managing-workflow-runs/skipping-workflow-runs
 
 
+# Artefatos
+
+Ao executar um Workflow é possível obter um artefato gerado durante a execucao de um job de Build. Para isso o GitHub Actions possui duas Actions para facilitar a implementacao do Workflow com essa funcionalidade
+
+
+### Upload Artefato
+
+O primeiro passo seria fazer upload do artefato gerado. 
+
+Primeiro é necessário entender como um artefato é gerado após o comando build. Nesse caso foi criada uma pasta com o nome dist com os artefatos dentro.
+
+Segue exemplo abaixo
+
+```
+    build:
+        name: Build
+        needs: test
+        runs-on: ubuntu-latest
+        steps:
+          - name: Get code
+            uses: actions/checkout@v3
+          - name: Install dependencies
+            working-directory: ./first-exercise
+            run: npm ci
+          - name: Build application
+            working-directory: ./first-exercise
+            run: npm run build
+            # busca nome do arquivo JS na pasta dist
+          - name: Upload artifact
+            uses: actions/upload-artifact@v3
+            with:
+              name: dist-files
+              path: ./first-exercise/dist
+```
+
+Para fazer o upload do artefato, foi implementado o step com o nome "Upload artifact" que usa uma Action pré pronta do Marketplace. Foi necessário apenas usar o objeto with com os atributos indicando o nome do artefato que será feito o upload e o path dele do repositório.
+
+
+### Download Artefato
+
+Para fazer download de um artefato é necessário ter feito o Upload antes (exemplo no tópico acima)
+
+```
+    deploy:
+        name: Deploy
+        needs: build
+        runs-on: ubuntu-latest
+        steps:
+          # baixar artefato gerado no passo anterior
+          - name: Get build artifacts
+            uses: actions/download-artifact@v3
+            with:
+              name: dist-files
+          - name: Output contents
+            run: ls
+
+```
+
+Para realizar o download foi implementado o step com nome "Get build artifacts" que usa uma Action pré pronta do Marketplace. Foi necessário apenas usar o objeto with com o atributo name indicando o nome do artefato que foi feito o upload (nome de acordo com o tópico anterior)
+
+
+# Gerando um Output
+
+
+
+
+# Utilizando Cache em Steps que se repetem
+
+
+
 
 
 

@@ -7,6 +7,12 @@ jobs:
         steps:
           - name: Get code
             uses: actions/checkout@v3
+          - name: Cache dependencies
+            uses: actions/cache@v3
+            with:
+              path: ˜/.npm 
+              # hashFiles produz um hash para os arquivos, facilitando a identificacao caso haja alguma mudanca para atualizar o cache
+              key: deps-node-modules-${{ hashFiles('**/package-lock.json') }}
           - name: Install dependencies
             working-directory: ./first-exercise
             run: npm ci
@@ -20,6 +26,12 @@ jobs:
         steps:
           - name: Get code
             uses: actions/checkout@v3
+          - name: Cache dependencies
+            uses: actions/cache@v3
+            with:
+              path: ˜/.npm 
+              # hashFiles produz um hash para os arquivos, facilitando a identificacao caso haja alguma mudanca para atualizar o cache
+              key: deps-node-modules-${{ hashFiles('**/package-lock.json') }}
           - name: Install dependencies
             working-directory: ./first-exercise
             run: npm ci
@@ -35,6 +47,12 @@ jobs:
         steps:
           - name: Get code
             uses: actions/checkout@v3
+          - name: Cache dependencies
+            uses: actions/cache@v3
+            with:
+              path: ˜/.npm 
+              # hashFiles produz um hash para os arquivos, facilitando a identificacao caso haja alguma mudanca para atualizar o cache
+              key: deps-node-modules-${{ hashFiles('**/package-lock.json') }}
           - name: Install dependencies
             working-directory: ./first-exercise
             run: npm ci
@@ -63,7 +81,7 @@ jobs:
           - name: Output contents
             run: ls
           - name: Output filename
-          # acessa o job que esse job depende e acessa o atributo script-file para acessar o filename
+          # usando o objeto needs acessa o job que esse job depende (para output é a melhor opcao) e acessa o atributo script-file para acessar o filename
             run: echo "${{ needs.build.outputs.script-file }}"
           - name: Deploying
             run: echo "Deploying..."
