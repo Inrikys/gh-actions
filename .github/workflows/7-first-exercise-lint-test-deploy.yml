@@ -64,6 +64,6 @@ jobs:
             run: ls
           - name: Output filename
           # acessa o job que esse job depende e acessa o atributo script-file para acessar o filename
-            run: echo "${{ needs.build.outputs.script-file }}""
+            run: echo "${{ needs.build.outputs.script-file }}"
           - name: Deploying
             run: echo "Deploying..."
