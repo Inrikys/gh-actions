@@ -16,6 +16,8 @@ jobs:
               path: ˜/.npm 
               # hashFiles produz um hash para os arquivos, facilitando a identificacao caso haja alguma mudanca para atualizar o cache
               key: deps-node-modules-${{ hashFiles('**/package-lock.json') }}
+          # Caso haja a pasta .npm, o comando npm ci não vai baixar novamente
+          # o cache é usado para a pasta .npm permanecer caso nao haja mudancas no arquivo package-lock.json
           - name: Install dependencies
             working-directory: ./first-exercise
             run: npm ci
