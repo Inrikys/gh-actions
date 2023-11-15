@@ -1,4 +1,4 @@
-name: First Exercise - Lint, Test & Deploy
+name: First Exercise - Output e Artefatos
 on: push
 jobs:
     lint:
@@ -61,6 +61,9 @@ jobs:
             with:
               name: dist-files
           - name: Output contents
-            run: 
+            run: ls
+          - name: Output filename
+          # acessa o job que esse job depende e acessa o atributo script-file para acessar o filename
+            run: echo "${{ needs.build.outputs.script-file }}""
           - name: Deploying
             run: echo "Deploying..."
