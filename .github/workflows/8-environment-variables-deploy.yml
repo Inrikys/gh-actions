@@ -4,8 +4,18 @@ on:
     branches:
       - main
       - dev
+# variáveis que podem ser usadas em todos os jobs -> escopo do Workflow
+env:
+  # variáveis que são usadas em ./third-environment-variable/data/database.js
+  MONGODB_DB_NAME: gha-demo
 jobs:
   test:
+    # variáveis que podem ser usadas em todos os steps -> escopo do Job
+    env:
+      MONGODB_CLUSTER_ADDRESS: estudo.srlzzrn.mongodb.net
+      MONGODB_USERNAME: inrikys
+      MONGODB_PASSWORD: zNnrllTBJfWIcZOB
+      PORT: 8080
     environment: testing
     runs-on: ubuntu-latest
     steps:
