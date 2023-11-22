@@ -65,12 +65,12 @@ Repositório:
 - issues (issue foi criada)
 - issue_comment (comentario na issue ou pr foi criado)
 - watch (repositorio foi starred)
-etc
+  etc
 
 Outros:
 - workflow_dispatch (ativada manualmente)
-- repository_dispatch (REST API request ativa a workflow)  
-- schedule (agendar o workflow)  
+- repository_dispatch (REST API request ativa a workflow)
+- schedule (agendar o workflow)
 - workflow_call (ativada através de outras workflows)
 
 mais detalhes: https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows
@@ -277,7 +277,7 @@ Mais detalhes: https://docs.github.com/en/actions/using-workflows/events-that-tr
 Quando um repositório é forked, caso as atividades padrões tenha sido setadas para o evento de pull_request, no repositório original o Workflow vai estar escutando o evento, porém uma aprovacao será necessária. Então é necessário ter cuidado com esse possível cenário.
 
 ### Filters
-Podemos configurar a branch target que o evento será escutado. 
+Podemos configurar a branch target que o evento será escutado.
 
 Por padrão, os Workflows vão ser executados na branch principal.
 Para especificar a branch, é necessário apenas adicionar o atributo "branches" dentro do objeto evento.
@@ -339,7 +339,7 @@ Ao executar um Workflow é possível obter um artefato gerado durante a execucao
 
 ### Upload Artefato
 
-O primeiro passo seria fazer upload do artefato gerado. 
+O primeiro passo seria fazer upload do artefato gerado.
 
 Primeiro é necessário entender como um artefato é gerado após o comando build. Nesse caso foi criada uma pasta com o nome dist com os artefatos dentro.
 
@@ -438,7 +438,7 @@ Segue exemplo:
 Para utilizar o recurso de cache, o GitHub já tem uma Action criada:
 actions/cache@v3
 
-É necessário criar o cache antes do recurso que será "cacheado" no exemplo abaixo foi criado um cache da pasta /.npm, 
+É necessário criar o cache antes do recurso que será "cacheado" no exemplo abaixo foi criado um cache da pasta /.npm,
 que é criada através do comando "npm ci" no step seguinte.
 
 O cache é aplicado entre os Workflows/ Jobs e Steps. Para usá-lo é necessário o uso da Action.
@@ -561,4 +561,3 @@ jobs:
 ### Invalidando cache
 
 No contexto acima, o cache é invalidado quando o arquivo package-lock.json é modificado.
-
