@@ -31,16 +31,20 @@ jobs:
         run: npm ci
       - name: Run server
         working-directory: ./third-environment-variables
-        run: npm start & npx wait-on http://127.0.0.1:XYZ
+        # a variavel de ambiente em um runner linux pode ser acessa usando $ e o nome da variável
+        run: npm start & npx wait-on http://127.0.0.1:$PORT
       - name: Run tests
         working-directory: ./third-environment-variables
         run: npm test
       - name: Output information
-        run: echo "..."
+        run: echo "MONGODB_USERNAME = ${{ env.MONGODB_USERNAME}}"
   deploy:
     needs: test
     runs-on: ubuntu-latest
     steps:
       - name: Output information
+        # MONGODB_USERNAME está no escopo do Job test
+        # MONGODB_DB_NAME está no escopo do Workflow
         run: |        
-          echo "..."
+          echo "MONGODB_USERNAME: ${{ env.MONGODB_USERNAME}}"
+          echo "MONGODB_DB_NAME: $MONGODB_DB_NAME"
