@@ -15,10 +15,10 @@ Workflows
 São vinculados ao repositório e contém um ou mais Jobs que podem ser iniciados através de eventos
 
 Jobs
-Define o executador (ambiente de execucao), contém um ou mais steps. Pode ser executados em série ou em paralelo, podendo conter lógicas de condicionais.
+define o executador (ambiente de execucao), contém um ou mais steps. Pode ser executados em série ou em paralelo, podendo conter lógicas de condicionais.
 
 Steps
-Executa um terminal shell script ou uma Action. Pode ser criada ou usar Steps de terceiros (já criados). São executados em ordem e também podem conter lógicas de condicionais.
+executa um terminal shell script ou uma Action. Pode ser criada ou usar Steps de terceiros (já criados). São executados em ordem e também podem conter lógicas de condicionais.
 
 # Criando um Workflow
 
@@ -247,7 +247,7 @@ Vamos supor que não é desejavel executar algum Workflow específico na branch 
 Para isso vamos entender dois novos conceitos: Activity Types e Filters
 
 
-## Activity Types
+### Activity Types
 Cada evento possui tipos de atividades, por exemplo:
 pull_request -> opened, closed, edited etc
 
@@ -273,10 +273,10 @@ Obs: cada evento tem activity types default caso nenhuma seja especificada
 
 Mais detalhes: https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows
 
-## Forked pull_requests
+### Forked pull_requests
 Quando um repositório é forked, caso as atividades padrões tenha sido setadas para o evento de pull_request, no repositório original o Workflow vai estar escutando o evento, porém uma aprovacao será necessária. Então é necessário ter cuidado com esse possível cenário.
 
-## Filters
+### Filters
 Podemos configurar a branch target que o evento será escutado. 
 
 Por padrão, os Workflows vão ser executados na branch principal.
@@ -395,13 +395,170 @@ Para realizar o download foi implementado o step com nome "Get build artifacts" 
 
 # Gerando um Output
 
+Um output pode ser utilizado em Jobs seguintes como parametro ou qualquer que seja o caso de uso.
+Para gerar um output em um Job é necessário utilizar o objeto outputs dentro do escopo do Job.
 
+Segue exemplo:
+
+
+```
+    build:
+        name: Build
+        needs: test
+        runs-on: ubuntu-latest
+        outputs:
+          script-file: ${{ steps.publish.outputs.script-file }}
+        steps:
+        ...
+        - name: Publish JS filename
+          id: publish
+          run: find ./first-exercise/dist/assets/*.js -type f -execdir echo 'script-file={}' >> $GITHUB_OUTPUT ';'
+```
+
+pode ser percebido que para acessar o texto que foi gerado como output, foi necessário
+utilizar o caminho do texto pelo id que foi escolhido no step
+
+id: publish
+
+em run foi descrito um script que escreve o nome do arquivo .js no contexto do $GITHUB_OUTPUT
+
+Para utilizar o output basta acessar utilizando o objeto needs e utilizando o caminho onde foi setado o objeto outputs
+
+Segue exemplo:
+
+```
+          - name: Output filename
+          # usando o objeto needs acessa o job que esse job depende (para output é a melhor opcao) e acessa o atributo script-file para acessar o filename
+            run: echo "${{ needs.build.outputs.script-file }}"
+```
 
 
 # Utilizando Cache em Steps que se repetem
 
+Para utilizar o recurso de cache, o GitHub já tem uma Action criada:
+actions/cache@v3
 
+É necessário criar o cache antes do recurso que será "cacheado" no exemplo abaixo foi criado um cache da pasta /.npm, 
+que é criada através do comando "npm ci" no step seguinte.
 
+O cache é aplicado entre os Workflows/ Jobs e Steps. Para usá-lo é necessário o uso da Action.
 
+Para manter o cache, é criado um hash do arquivo package-lock.json. Caso o arquivo mude
+o hash também mudará, e se o hash mudar, um novo cache será criado.
 
+O comando "npm ci" também possui um recurso de cache, onde as dependências são baixadas apenas
+se a pasta /.npm não existir.
+
+```
+name: First Exercise - Output e Artefatos
+on: push
+jobs:
+    lint:
+        name: Lint
+        runs-on: ubuntu-latest
+        steps:
+          - name: Get code
+            uses: actions/checkout@v3
+          - name: Cache dependencies
+            uses: actions/cache@v3
+            with:
+              # se já existe a pasta .npm, ele verifica o hash do arquivo package-lock.json, se for o mesmo hash, utilizado cache
+              # caso contrário, gera outro
+              # https://github.com/actions/cache
+              path: ˜/.npm 
+              # hashFiles produz um hash para os arquivos, facilitando a identificacao caso haja alguma mudanca para atualizar o cache
+              key: deps-node-modules-${{ hashFiles('**/package-lock.json') }}
+          # Caso haja a pasta .npm, o comando npm ci não vai baixar novamente
+          # o cache é usado para a pasta .npm permanecer caso nao haja mudancas no arquivo package-lock.json
+          - name: Install dependencies
+            working-directory: ./first-exercise
+            run: npm ci
+```
+
+A lógica do cache será em cima da pasta /.npm, então caso seja necessário utilizar o cache em outros Jobs, será necessário utilizar o step
+onde é usado a Action de cache.
+
+Segue exemplo abaixo, onde o cache é utilizando no job "lint", "test" e "build":
+
+```
+name: First Exercise - Output e Artefatos
+on: push
+jobs:
+    lint:
+        name: Lint
+        runs-on: ubuntu-latest
+        steps:
+          - name: Get code
+            uses: actions/checkout@v3
+          - name: Cache dependencies
+            uses: actions/cache@v3
+            with:
+              # se já existe a pasta .npm, ele verifica o hash do arquivo package-lock.json, se for o mesmo hash, utilizado cache
+              # caso contrário, gera outro
+              # https://github.com/actions/cache
+              path: ˜/.npm 
+              # hashFiles produz um hash para os arquivos, facilitando a identificacao caso haja alguma mudanca para atualizar o cache
+              key: deps-node-modules-${{ hashFiles('**/package-lock.json') }}
+          # Caso haja a pasta .npm, o comando npm ci não vai baixar novamente
+          # o cache é usado para a pasta .npm permanecer caso nao haja mudancas no arquivo package-lock.json
+          - name: Install dependencies
+            working-directory: ./first-exercise
+            run: npm ci
+          - name: Lint
+            working-directory: ./first-exercise
+            run: npm run lint
+    test:
+        name: Test
+        needs: lint
+        runs-on: ubuntu-latest
+        steps:
+          - name: Get code
+            uses: actions/checkout@v3
+          - name: Cache dependencies
+            uses: actions/cache@v3
+            with:
+              path: ˜/.npm 
+              # hashFiles produz um hash para os arquivos, facilitando a identificacao caso haja alguma mudanca para atualizar o cache
+              key: deps-node-modules-${{ hashFiles('**/package-lock.json') }}
+          - name: Install dependencies
+            working-directory: ./first-exercise
+            run: npm ci
+          - name: Test
+            working-directory: ./first-exercise
+            run: npm run test
+    build:
+        name: Build
+        needs: test
+        runs-on: ubuntu-latest
+        outputs:
+          script-file: ${{ steps.publish.outputs.script-file }}
+        steps:
+          - name: Get code
+            uses: actions/checkout@v3
+          - name: Cache dependencies
+            uses: actions/cache@v3
+            with:
+              path: ˜/.npm 
+              # hashFiles produz um hash para os arquivos, facilitando a identificacao caso haja alguma mudanca para atualizar o cache
+              key: deps-node-modules-${{ hashFiles('**/package-lock.json') }}
+          - name: Install dependencies
+            working-directory: ./first-exercise
+            run: npm ci
+          - name: Build application
+            working-directory: ./first-exercise
+            run: npm run build
+            # busca nome do arquivo JS na pasta dist
+          - name: Publish JS filename
+            id: publish
+            run: find ./first-exercise/dist/assets/*.js -type f -execdir echo 'script-file={}' >> $GITHUB_OUTPUT ';'
+          - name: Upload artifact
+            uses: actions/upload-artifact@v3
+            with:
+              name: dist-files
+              path: ./first-exercise/dist
+```
+
+### Invalidando cache
+
+No contexto acima, o cache é invalidado quando o arquivo package-lock.json é modificado.
 
