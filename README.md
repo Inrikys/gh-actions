@@ -561,3 +561,9 @@ jobs:
 ### Invalidando cache
 
 No contexto acima, o cache é invalidado quando o arquivo package-lock.json é modificado.
+
+# Variáveis de ambiente
+
+## env
+
+## Secrets
