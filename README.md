@@ -639,3 +639,75 @@ jobs:
 
 
 ## Secrets
+
+Em caso de dados sensíveis, como password e usuário, é possível armazenar
+o valor no próprio repositório, em configurações
+
+![Settings do repositório](https://i.imgur.com/hCF7O6J.png)
+
+Na aba Security, no lado esquerdo, clicar em Secrets and variables > Actions
+
+![Secrets and variables](https://i.imgur.com/O2K15bv.png)
+
+Basta apenas clicar em New repository secret, e adicionar a chave e valor
+![Adicionar secrets ou variaveis](https://i.imgur.com/sFU0e3r.png)
+
+
+Para utilizar os secrets criados, segue exemplo abaixo:
+
+é possível acessar através de ${{ secrets.NOME_SECRET }}, porém ao tentar exibir no terminal, o GitHub irá anonimizar 
+escondendo o valor
+
+```
+name: Third - Secrets
+on:
+  push:
+    branches:
+      - main
+      - dev
+env:
+  # variáveis que são usadas em ./third-environment-variable/data/database.js
+  # https://docs.github.com/pt/actions/security-guides/using-secrets-in-github-actions
+  MONGODB_DB_NAME: ${{ secrets.MONGODB_DB_NAME }}
+jobs:
+  test:
+    # settings do repositório > security > secrets > actions
+    env:
+      MONGODB_CLUSTER_ADDRESS: estudo.srlzzrn.mongodb.net
+      MONGODB_USERNAME: ${{ secrets.MONGODB_USERNAME }}
+      MONGODB_PASSWORD: ${{ secrets.MONGODB_PASSWORD }}
+      PORT: 8080
+    environment: testing
+    runs-on: ubuntu-latest
+    steps:
+      - name: Get Code
+        uses: actions/checkout@v3
+      - name: Cache dependencies
+        uses: actions/cache@v3
+        with:
+          path: ~/.npm
+          key: npm-deps-${{ hashFiles('**/package-lock.json') }}
+      - name: Install dependencies
+        working-directory: ./third-environment-variables
+        run: npm ci
+      - name: Run server
+        working-directory: ./third-environment-variables
+        # a variavel de ambiente em um runner linux pode ser acessa usando $ e o nome da variável
+        run: npm start & npx wait-on http://127.0.0.1:$PORT
+      - name: Run tests
+        working-directory: ./third-environment-variables
+        run: npm test
+      - name: Output information
+        # GitHub deve esconder o valor dos secrets
+        run: |
+          echo "MONGODB_USERNAME = ${{ secrets.MONGODB_USERNAME }}"
+  deploy:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Output information
+        # GitHub deve esconder o valor dos secrets
+        run: |
+          echo "MONGODB_USERNAME: ${{ secrets.MONGODB_USERNAME}}"
+          echo "MONGODB_DB_NAME: ${{ secrets.MONGODB_DB_NAME}}"
+```
