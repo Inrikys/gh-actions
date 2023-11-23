@@ -564,6 +564,78 @@ No contexto acima, o cache é invalidado quando o arquivo package-lock.json é m
 
 # Variáveis de ambiente
 
+Utilizar variáveis de ambiente em um sistema é muito comum, ainda mais quando temos mais de um ambiente
+como por exemplo: dev, hom e prod.
+
+Variáveis de ambiente são a melhor opção quando é necessário utilizar um não estático.
+
 ## env
+
+É possível utilizar variáveis de ambiente direto no escopo do Workflow ou Job
+
+Segue exemplo abaixo - Workflow com variáveis de ambiente no escopo do Workflow e também do Job
+
+escopo do Workflow pode ser resgatada da seguinte maneira -> $MONGODB_USERNAME
+escopo do Job pode ser resgatada da seguinte maneira -> ${{ env.MONGODB_USERNAME }}
+
+```
+name: Third - Environment Variables
+on:
+  push:
+    branches:
+      - main
+      - dev
+# variáveis default https://docs.github.com/en/actions/learn-github-actions/variables#default-environment-variables
+# variáveis que podem ser usadas em todos os jobs -> escopo do Workflow
+env:
+  # variáveis que são usadas em ./third-environment-variable/data/database.js
+  MONGODB_DB_NAME: gha-demo
+jobs:
+  test:
+    # variáveis que podem ser usadas em todos os steps -> escopo do Job
+    # essa não é a melhor maneira de armazenar dados sensíveis como password
+    # temos a possibilidade de armazenar no próprio GitHub
+    # settings > security > secrets > actions
+    env:
+      MONGODB_CLUSTER_ADDRESS: estudo.srlzzrn.mongodb.net
+      MONGODB_USERNAME: inrikys
+      MONGODB_PASSWORD: zNnrllTBJfWIcZOB
+      PORT: 8080
+    environment: testing
+    runs-on: ubuntu-latest
+    steps:
+      - name: Get Code
+        uses: actions/checkout@v3
+      - name: Cache dependencies
+        uses: actions/cache@v3
+        with:
+          path: ~/.npm
+          key: npm-deps-${{ hashFiles('**/package-lock.json') }}
+      - name: Install dependencies
+        working-directory: ./third-environment-variables
+        run: npm ci
+      - name: Run server
+        working-directory: ./third-environment-variables
+        # a variavel de ambiente em um runner linux pode ser acessa usando $ e o nome da variável
+        run: npm start & npx wait-on http://127.0.0.1:$PORT
+      - name: Run tests
+        working-directory: ./third-environment-variables
+        run: npm test
+      - name: Output information
+        run: |
+          echo "MONGODB_USERNAME = ${{ env.MONGODB_USERNAME }}"
+  deploy:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Output information
+        # MONGODB_USERNAME está no escopo do Job test
+        # MONGODB_DB_NAME está no escopo do Workflow
+        run: |
+          echo "MONGODB_USERNAME: ${{ env.MONGODB_USERNAME}}"
+          echo "MONGODB_DB_NAME: $MONGODB_DB_NAME"
+
+```
+
 
 ## Secrets
