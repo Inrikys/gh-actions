@@ -708,6 +708,11 @@ jobs:
       - name: Output information
         # GitHub deve esconder o valor dos secrets
         run: |
-          echo "MONGODB_USERNAME: ${{ secrets.MONGODB_USERNAME}}"
-          echo "MONGODB_DB_NAME: ${{ secrets.MONGODB_DB_NAME}}"
+          echo "MONGODB_USERNAME: ${{ env.MONGODB_USERNAME}}"
+          echo "MONGODB_DB_NAME: $MONGODB_DB_NAME"
 ```
+
+## Environment
+
+Caso a aplicação tenha mais de um ambiente, o uso de Environment no repositório do GitHub é a melhor opção.
+
