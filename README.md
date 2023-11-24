@@ -571,7 +571,8 @@ Variáveis de ambiente são a melhor opção quando é necessário utilizar um n
 
 ## env
 
-É possível utilizar variáveis de ambiente direto no escopo do Workflow ou Job
+É possível utilizar variáveis de ambiente direto no escopo do Workflow, Job ou Step (caso a mesma seja criada em um escopo mais específico, irá 
+sobrescrever a do escopo anterior)
 
 Segue exemplo abaixo - Workflow com variáveis de ambiente no escopo do Workflow e também do Job
 
