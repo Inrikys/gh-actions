@@ -716,3 +716,17 @@ jobs:
 
 Caso a aplicação tenha mais de um ambiente, o uso de Environment no repositório do GitHub é a melhor opção.
 
+![Settings do repositório](https://i.imgur.com/hCF7O6J.png)
+
+Clicar em Environments, na aba Code and automation
+
+![Environments](https://i.imgur.com/THEnGlD.png)
+
+Adicionar as Secrets
+
+![Environments Secrets](https://i.imgur.com/I2BYLdC.png)
+
+Também é possível escolher uma branch específica para a utilização das Secrets e variáveis do Environment
+
+![Environment Conditions](https://i.imgur.com/JNV2TQq.png)
+

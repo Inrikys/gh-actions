@@ -1,4 +1,4 @@
-name: First Exercise - Output e Artefatos
+name: Output e Artefatos
 on: push
 jobs:
     lint:

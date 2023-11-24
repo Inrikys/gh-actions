@@ -1,4 +1,4 @@
-name: First Workflow - Hello World
+name: Hello World
 # workflow_dispatch -> inicia manualmente
 # https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows
 on: workflow_dispatch 

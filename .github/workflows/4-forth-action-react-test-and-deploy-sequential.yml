@@ -1,4 +1,4 @@
-name: Forth Workflow - Test and Deploy (sequence) React Demo
+name: Test and Deploy (sequence) React Demo
 on: push
 jobs:
   test:

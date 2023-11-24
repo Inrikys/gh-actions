@@ -5,18 +5,17 @@ on:
       - main
       - dev
 env:
-  # variáveis que são usadas em ./third-environment-variable/data/database.js
-  # https://docs.github.com/pt/actions/security-guides/using-secrets-in-github-actions
   MONGODB_DB_NAME: ${{ secrets.MONGODB_DB_NAME }}
 jobs:
   test:
-    # settings do repositório > security > secrets > actions
+    # settings do repositório > Environments
+    # serve para escolher os valores dos ambientes específicos
+    environment: dev
     env:
       MONGODB_CLUSTER_ADDRESS: estudo.srlzzrn.mongodb.net
       MONGODB_USERNAME: ${{ secrets.MONGODB_USERNAME }}
       MONGODB_PASSWORD: ${{ secrets.MONGODB_PASSWORD }}
       PORT: 8080
-    environment: testing
     runs-on: ubuntu-latest
     steps:
       - name: Get Code
@@ -31,13 +30,11 @@ jobs:
         run: npm ci
       - name: Run server
         working-directory: ./third-environment-variables
-        # a variavel de ambiente em um runner linux pode ser acessa usando $ e o nome da variável
         run: npm start & npx wait-on http://127.0.0.1:$PORT
       - name: Run tests
         working-directory: ./third-environment-variables
         run: npm test
       - name: Output information
-        # GitHub deve esconder o valor dos secrets
         run: |
           echo "MONGODB_USERNAME = ${{ secrets.MONGODB_USERNAME }}"
   deploy:
@@ -45,7 +42,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Output information
-        # GitHub deve esconder o valor dos secrets
         run: |
           echo "MONGODB_USERNAME: ${{ env.MONGODB_USERNAME }}"
           echo "MONGODB_DB_NAME: $MONGODB_DB_NAME"

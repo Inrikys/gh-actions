@@ -1,4 +1,4 @@
-name: Third - Environment Variables
+name: Environment Variables
 on:
   push:
     branches:

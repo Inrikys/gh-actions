@@ -1,4 +1,4 @@
-name: First Exercise - Output Event Details on issues
+name: Output Event Details on issues
 on: issues
 jobs:
     issue:

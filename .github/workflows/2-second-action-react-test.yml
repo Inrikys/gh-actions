@@ -1,4 +1,4 @@
-name: Second Workflow - Test React Demo
+name: Test React Demo
 on: push
 jobs:
   test:
