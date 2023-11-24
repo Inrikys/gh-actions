@@ -1,4 +1,4 @@
-name: Secrets
+name: Repository Environment
 on:
   push:
     branches:
