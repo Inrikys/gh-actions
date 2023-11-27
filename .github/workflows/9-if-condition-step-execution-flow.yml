@@ -1,4 +1,4 @@
-name: Website Deployment
+name: Step if condition - Execution flow
 on:
   push:
     branches:
