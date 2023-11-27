@@ -43,7 +43,7 @@ jobs:
         # Roda apenas se algum teste falhar
       - name: Upload test report
         # https://docs.github.com/en/actions/learn-github-actions/expressions
-        if: steps.run-tests.outcome = 'failure'
+        if: ${{ steps.run-tests.outcome == 'failure' }}
         uses: actions/upload-artifact@v3
         with:
           name: test-report
