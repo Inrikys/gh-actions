@@ -36,9 +36,14 @@ jobs:
         working-directory: ./forth-execution-flow
         run: npm ci
       - name: Test code
+        # o uso do id permite que qualquer step seja referenciado
+        id: run-tests
         working-directory: ./forth-execution-flow
         run: npm run test
+        # Roda apenas se algum teste falhar
       - name: Upload test report
+        # https://docs.github.com/en/actions/learn-github-actions/expressions
+        if: ${{ steps.run-tests.outcome = 'failure' }}
         uses: actions/upload-artifact@v3
         with:
           name: test-report
