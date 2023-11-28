@@ -46,6 +46,12 @@ jobs:
         # o script irá ignorar o restante do script caso falhe no step anterior
         # https://docs.github.com/en/actions/learn-github-actions/expressions
         if: ${{ failure() && steps.run-tests.outcome == 'failure' }}
+        # tem 4 funções especiais
+        # failure(), success(), always(), cancelled()
+        # failure -> retorna true quando qualquer Step ou Job anterior falhar
+        # success -> retorna true quando NENHUM Step ou Job anterior falhar
+        # always -> sempre retorna true, caso sucesso ou falha
+        # cancelled -> retorna true quando o Workflow for cancelado
         uses: actions/upload-artifact@v3
         with:
           name: test-report
@@ -86,3 +92,11 @@ jobs:
         run: ls
       - name: Deploy
         run: echo "Deploying..."
+  report:
+    if: failure()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Output failure information
+        run: |
+          echo "Something went wrong"
+          echo "${{ toJson(github) }}"

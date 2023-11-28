@@ -734,3 +734,78 @@ Também é possível escolher uma branch específica para a utilização das Sec
 
 
 # Controlando fluxo de Jobs e Steps
+
+## Condição IF
+
+É possível controlar o fluxo com condição IF em um determinado trecho do script, entre Jobs ou Steps
+
+No exemplo abaixo é utilizado uma condição IF após o comando de rodas os testes ser executado.
+O IF utilizado no Step seguinte ao que executa os testes.
+
+Para o IF funcionar corretamente em um contexto de falha, foi necessário acrescentar uma função especial do GitHub Actions,
+a função failure(). Ela verifica se houve alguma falha nos Steps e Jobs anteriores. Caso ela não seja adicionada, quando 
+um dos Steps ou Jobs anteriores falharem, o Workflow para de rodar, e com a função failure(), dá para escolher
+qual Step será executado se algo falhar.
+
+Dentro do IF também usamos o objeto de contexto "steps", para capturar o resultado do Step com id = run-tests.
+
+```
+name: Step if condition - Execution flow
+on:
+  push:
+    branches:
+      - main
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Get code
+        uses: actions/checkout@v3
+      - name: Cache dependencies
+        id: cache
+        uses: actions/cache@v3
+        with:
+          path: ~/.npm
+          key: deps-node-modules-${{ hashFiles('**/package-lock.json') }}
+      - name: Install dependencies
+        working-directory: ./forth-execution-flow
+        run: npm ci
+      - name: Test code
+        # o uso do id permite que qualquer step seja referenciado
+        id: run-tests
+        working-directory: ./forth-execution-flow
+        run: npm run test
+        # Roda apenas se algum teste falhar
+      - name: Upload test report
+        if: ${{ failure() && steps.run-tests.outcome == 'failure' }}
+        uses: actions/upload-artifact@v3
+        with:
+          name: test-report
+          path: ./forth-execution-flow/test.json
+```
+
+tem 4 funções especiais
+failure(), success(), always(), cancelled()
+failure -> retorna true quando qualquer Step ou Job anterior falhar
+success -> retorna true quando NENHUM Step ou Job anterior falhar
+always -> sempre retorna true, caso sucesso ou falha
+cancelled -> retorna true quando o Workflow for cancelado
+
+https://docs.github.com/en/actions/learn-github-actions/expressions
+
+Um outro exemplo de uso para a função failure():
+Caso algum Job ou Step falhe, esse Job "report" será executado.
+```
+  report:
+    needs: [primeiro-job-do-workflow, ultimo-job-do-workflow]
+    if: failure()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Output failure information
+        run: |
+          echo "Something went wrong"
+          echo "${{ toJson(github) }}"
+```
+
+É importante ressaltar que no objeto needs é necessário ter o primeiro e o ultimo job do workflow, para não ser executado antes
+que algum Job ou Step falhe.
