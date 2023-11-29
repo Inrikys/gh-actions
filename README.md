@@ -807,5 +807,5 @@ Caso algum Job ou Step falhe, esse Job "report" será executado.
           echo "${{ toJson(github) }}"
 ```
 
-É importante ressaltar que no objeto needs é necessário ter o primeiro e o ultimo job do workflow, para não ser executado antes
+É importante ressaltar que no atributo needs é necessário ter o primeiro e o ultimo job do workflow, para não ser executado antes
 que algum Job ou Step falhe.

@@ -1,0 +1,96 @@
+name: Step if condition - Execution flow
+on:
+  push:
+    branches:
+      - main
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Get code
+        uses: actions/checkout@v3
+        # Action de cache também emite um output que pode ser verificado nos Steps seguintes
+        # https://github.com/actions/cache -> em Outputs -> cache-hit
+      - name: Cache dependencies
+        id: cache
+        uses: actions/cache@v3
+        with:
+          path: ./forth-execution-flow/node_modules
+          key: deps-node-modules-${{ hashFiles('**/package-lock.json') }}
+      - name: Install dependencies
+        if: step.cache.outputs.cache-hit != 'true'
+        working-directory: ./forth-execution-flow
+        run: npm ci
+      - name: Lint code
+        working-directory: ./forth-execution-flow
+        run: npm run lint
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Get code
+        uses: actions/checkout@v3
+      - name: Cache dependencies
+        id: cache
+        uses: actions/cache@v3
+        with:
+          path: ./forth-execution-flow/node_modules
+          key: deps-node-modules-${{ hashFiles('**/package-lock.json') }}
+      - name: Install dependencies
+        if: step.cache.outputs.cache-hit != 'true'
+        working-directory: ./forth-execution-flow
+        run: npm ci
+      - name: Test code
+        id: run-tests
+        working-directory: ./forth-execution-flow
+        run: npm run test
+        if: ${{ failure() && steps.run-tests.outcome == 'failure' }}
+        uses: actions/upload-artifact@v3
+        with:
+          name: test-report
+          path: ./forth-execution-flow/test.json
+  build:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Get code
+        uses: actions/checkout@v3
+      - name: Cache dependencies
+        id: cache
+        uses: actions/cache@v3
+        with:
+          path: ./forth-execution-flow/node_modules
+          key: deps-node-modules-${{ hashFiles('**/package-lock.json') }}
+      - name: Install dependencies
+        if: step.cache.outputs.cache-hit != 'true'
+        working-directory: ./forth-execution-flow
+        run: npm ci
+      - name: Build website
+        id: build-website
+        working-directory: ./forth-execution-flow
+        run: npm run build
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: dist-files
+          path: dist
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Get build artifacts
+        uses: actions/download-artifact@v3
+        with:
+          name: dist-files
+      - name: Output contents
+        run: ls
+      - name: Deploy
+        run: echo "Deploying..."
+  report:
+    needs: [lint, deploy]
+    if: failure()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Output failure information
+        run: |
+          echo "Something went wrong"
+          echo "${{ toJson(github) }}"
