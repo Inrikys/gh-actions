@@ -16,10 +16,10 @@ jobs:
           path: ~/.npm
           key: deps-node-modules-${{ hashFiles('**/package-lock.json') }}
       - name: Install dependencies
-        working-directory: ./forth-execution-flow
+        working-directory: ./fifth-execution-flow
         run: npm ci
       - name: Lint code
-        working-directory: ./forth-execution-flow
+        working-directory: ./fifth-execution-flow
         run: npm run lint
   test:
     runs-on: ubuntu-latest
@@ -33,18 +33,18 @@ jobs:
           path: ~/.npm
           key: deps-node-modules-${{ hashFiles('**/package-lock.json') }}
       - name: Install dependencies
-        working-directory: ./forth-execution-flow
+        working-directory: ./fifth-execution-flow
         run: npm ci
       - name: Test code
         id: run-tests
-        working-directory: ./forth-execution-flow
+        working-directory: ./fifth-execution-flow
         run: npm run test
       - name: Upload test report
         if: ${{ failure() && steps.run-tests.outcome == 'failure' }}
         uses: actions/upload-artifact@v3
         with:
           name: test-report
-          path: ./forth-execution-flow/test.json
+          path: ./fifth-execution-flow/test.json
   build:
     needs: test
     runs-on: ubuntu-latest
@@ -58,17 +58,17 @@ jobs:
           path: ~/.npm
           key: deps-node-modules-${{ hashFiles('**/package-lock.json') }}
       - name: Install dependencies
-        working-directory: ./forth-execution-flow
+        working-directory: ./fifth-execution-flow
         run: npm ci
       - name: Build website
         id: build-website
-        working-directory: ./forth-execution-flow
+        working-directory: ./fifth-execution-flow
         run: npm run build
       - name: Upload artifacts
         uses: actions/upload-artifact@v3
         with:
           name: dist-files
-          path: ./forth-execution-flow/dist
+          path: ./fifth-execution-flow/dist
   deploy:
     needs: build
     uses: ./.github/workflows/11-reusable-workflow-execution-flow.yml
