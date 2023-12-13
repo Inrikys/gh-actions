@@ -19,7 +19,7 @@ jobs:
           key: deps-node-modules-${{ hashFiles('**/package-lock.json') }}
       - name: Install dependencies
         # verifica se houve execução do cache no Step com id "cache"
-        if: step.cache.outputs.cache-hit != 'true'
+        if: steps.cache.outputs.cache-hit != 'true'
         working-directory: ./fifth-execution-flow
         run: npm ci
       - name: Lint code
@@ -37,7 +37,7 @@ jobs:
           path: ./fifth-execution-flow/node_modules
           key: deps-node-modules-${{ hashFiles('**/package-lock.json') }}
       - name: Install dependencies
-        if: step.cache.outputs.cache-hit != 'true'
+        if: steps.cache.outputs.cache-hit != 'true'
         working-directory: ./fifth-execution-flow
         run: npm ci
       - name: Test code
@@ -63,7 +63,7 @@ jobs:
           path: ./fifth-execution-flow/node_modules
           key: deps-node-modules-${{ hashFiles('**/package-lock.json') }}
       - name: Install dependencies
-        if: ${{ step.cache.outputs.cache-hit != 'true' }}
+        if: steps.cache.outputs.cache-hit != 'true'
         working-directory: ./fifth-execution-flow
         run: npm ci
       - name: Build website
