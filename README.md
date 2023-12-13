@@ -837,3 +837,14 @@ e a conclusão, por causa do uso do continue-on-error, é de sucesso
 steps.run-tests.outcome ->  usando outcome ele pega o resultado antes do continue-on-error, ou seja,
 ele pega o resultado correto do step
 
+
+# Usando estratégia Matrix
+Configurações multiplas
+
+# Reusando Workflows
+
+### Adicionando outputs a uma Workflow reusável
+
+### Secrets em Workflow reusável
+
+### Outputs em Workflow reusável
