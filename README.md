@@ -1,12 +1,15 @@
 # Introducao
 
-GitHub Actions são recursos disponibilizados pelo GitHub que possibilitam a automacao de procedimentos em relacao ao repositório.
+GitHub Actions são recursos disponibilizados pelo GitHub que possibilitam a automacao de procedimentos em relacao ao
+repositório.
 
-Em repositórios públicos, pode ser usado de maneira gratuita, mas para reposiórios privados, apenas uma certa quantia mensal está disponível de maneira gratuita.
+Em repositórios públicos, pode ser usado de maneira gratuita, mas para reposiórios privados, apenas uma certa quantia
+mensal está disponível de maneira gratuita.
 
 mais detalhes: https://docs.github.com/en/billing/managing-billing-for-github-actions/about-billing-for-github-actions
 
 Em GitHub Actions temos 3 blocos principais:
+
 - Workflows
 - Jobs
 - Steps
@@ -15,16 +18,19 @@ Workflows
 São vinculados ao repositório e contém um ou mais Jobs que podem ser iniciados através de eventos
 
 Jobs
-define o executador (ambiente de execucao), contém um ou mais steps. Pode ser executados em série ou em paralelo, podendo conter lógicas de condicionais.
+define o executador (ambiente de execucao), contém um ou mais steps. Pode ser executados em série ou em paralelo,
+podendo conter lógicas de condicionais.
 
 Steps
-executa um terminal shell script ou uma Action. Pode ser criada ou usar Steps de terceiros (já criados). São executados em ordem e também podem conter lógicas de condicionais.
+executa um terminal shell script ou uma Action. Pode ser criada ou usar Steps de terceiros (já criados). São executados
+em ordem e também podem conter lógicas de condicionais.
 
 # Criando um Workflow
 
 Para criar um do zero, o GitHub utiliza arquivos no formato .yml, dentro da pasta .github>workflows
 
 ## Exemplo de um Workflow simples
+
 (.github>workflows>first-action.yml)
 
 Workflow simples que executa comandos linux no runner ubuntu-latest
@@ -52,12 +58,13 @@ jobs:
 
 No exemplo acima, podemos ver na prática o que seria um Workflow com um Job e dois Steps.
 
-
 # Eventos (disparadores de Workflows)
 
-Dentro do objeto ˜on:˜ é escolhido o evento que será o disparador do Workflow. Segue abaixo exemplo de eventos que pode ser usado.
+Dentro do objeto ˜on:˜ é escolhido o evento que será o disparador do Workflow. Segue abaixo exemplo de eventos que pode
+ser usado.
 
 Repositório:
+
 - push
 - pull_request
 - create (a branch ou tab foi criada)
@@ -68,6 +75,7 @@ Repositório:
   etc
 
 Outros:
+
 - workflow_dispatch (ativada manualmente)
 - repository_dispatch (REST API request ativa a workflow)
 - schedule (agendar o workflow)
@@ -75,13 +83,14 @@ Outros:
 
 mais detalhes: https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows
 
-
 # Action
 
 O que são Actions?
-Uma Action é uma aplicacao que performa uma automacao frequentemente utilizada. Pode ser criada por conta própria ou utilizada por fontes oficiais de terceiros.
+Uma Action é uma aplicacao que performa uma automacao frequentemente utilizada. Pode ser criada por conta própria ou
+utilizada por fontes oficiais de terceiros.
 
-No GitHub temos uma aba de Marktplace onde pode ser encontradas várias Actions criadas por fontes oficiais. Isso facilita a criacao de Workflows, já que não é necessário recriar processos já criados pelo próprio time do GitHub.
+No GitHub temos uma aba de Marktplace onde pode ser encontradas várias Actions criadas por fontes oficiais. Isso
+facilita a criacao de Workflows, já que não é necessário recriar processos já criados pelo próprio time do GitHub.
 
 ## Action na prática
 
@@ -89,7 +98,8 @@ No GitHub temos uma aba de Marktplace onde pode ser encontradas várias Actions 
 
 O Workflow abaixo é utilizado para rodar os testes da aplicacao encontrada no diretório second-action-react-demo
 
-É um exemplo de utilizacao do dia-a-dia. Podemos criar um Workflow que valida se nenhum teste quebrou antes de enviar a atualizacao para producao ou até mesmo homologacao.
+É um exemplo de utilizacao do dia-a-dia. Podemos criar um Workflow que valida se nenhum teste quebrou antes de enviar a
+atualizacao para producao ou até mesmo homologacao.
 
 Pode ser notado o uso de Actions a partir do comando "uses", que indica o nome de uma Action encontrada no Marketplace
 
@@ -180,7 +190,8 @@ jobs:
 
 # Rodando Jobs em série
 
-Para rodar uma Job em sequencia de uma outra Job é bem simples, basta apenas adicionar o atributo "needs" nas propriedades da Job e setar o identificador da Job que deseja executar anterior a que está sendo configurada
+Para rodar uma Job em sequencia de uma outra Job é bem simples, basta apenas adicionar o atributo "needs" nas
+propriedades da Job e setar o identificador da Job que deseja executar anterior a que está sendo configurada
 
 ```
 name: Forth Workflow - Test and Deploy (sequence) React Demo
@@ -234,20 +245,23 @@ jobs:
 
 # Multiplos eventos
 
-Também é possível definir mais de um evento que servem de gatilho para execucao do Workflow. Para isso, é necessário apenas adicionar colchetes e separar os eventos por vírgula.
+Também é possível definir mais de um evento que servem de gatilho para execucao do Workflow. Para isso, é necessário
+apenas adicionar colchetes e separar os eventos por vírgula.
 Exemplo:
+
 ```
 on: [push, workflow_dispatch]
 ```
 
 # Controle de eventos
 
-Vamos supor que não é desejavel executar algum Workflow específico na branch develop, e queremos que o evento seja disparado apenas para a branch principal, main
+Vamos supor que não é desejavel executar algum Workflow específico na branch develop, e queremos que o evento seja
+disparado apenas para a branch principal, main
 
 Para isso vamos entender dois novos conceitos: Activity Types e Filters
 
-
 ### Activity Types
+
 Cada evento possui tipos de atividades, por exemplo:
 pull_request -> opened, closed, edited etc
 
@@ -274,9 +288,13 @@ Obs: cada evento tem activity types default caso nenhuma seja especificada
 Mais detalhes: https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows
 
 ### Forked pull_requests
-Quando um repositório é forked, caso as atividades padrões tenha sido setadas para o evento de pull_request, no repositório original o Workflow vai estar escutando o evento, porém uma aprovacao será necessária. Então é necessário ter cuidado com esse possível cenário.
+
+Quando um repositório é forked, caso as atividades padrões tenha sido setadas para o evento de pull_request, no
+repositório original o Workflow vai estar escutando o evento, porém uma aprovacao será necessária. Então é necessário
+ter cuidado com esse possível cenário.
 
 ### Filters
+
 Podemos configurar a branch target que o evento será escutado.
 
 Por padrão, os Workflows vão ser executados na branch principal.
@@ -323,7 +341,8 @@ jobs:
 
 # Skip Workflows
 
-Caso a ultima mudanca que ocorreu no código foi irrelevante para o funcionamento da aplicacao, como por exemplo, um comentário, é possível subir as alteracoes sem disparar o fluxo de Workflows
+Caso a ultima mudanca que ocorreu no código foi irrelevante para o funcionamento da aplicacao, como por exemplo, um
+comentário, é possível subir as alteracoes sem disparar o fluxo de Workflows
 
 Exemplo: git commit -m "docs: ajuste no readme [skip ci]"
 
@@ -331,17 +350,17 @@ o [skip ci] faz com que os Workflows não sejam disparados.
 
 Mais detalhes: https://docs.github.com/en/actions/managing-workflow-runs/skipping-workflow-runs
 
-
 # Artefatos
 
-Ao executar um Workflow é possível obter um artefato gerado durante a execucao de um job de Build. Para isso o GitHub Actions possui duas Actions para facilitar a implementacao do Workflow com essa funcionalidade
-
+Ao executar um Workflow é possível obter um artefato gerado durante a execucao de um job de Build. Para isso o GitHub
+Actions possui duas Actions para facilitar a implementacao do Workflow com essa funcionalidade
 
 ### Upload Artefato
 
 O primeiro passo seria fazer upload do artefato gerado.
 
-Primeiro é necessário entender como um artefato é gerado após o comando build. Nesse caso foi criada uma pasta com o nome dist com os artefatos dentro.
+Primeiro é necessário entender como um artefato é gerado após o comando build. Nesse caso foi criada uma pasta com o
+nome dist com os artefatos dentro.
 
 Segue exemplo abaixo
 
@@ -367,8 +386,9 @@ Segue exemplo abaixo
               path: ./first-exercise/dist
 ```
 
-Para fazer o upload do artefato, foi implementado o step com o nome "Upload artifact" que usa uma Action pré pronta do Marketplace. Foi necessário apenas usar o objeto with com os atributos indicando o nome do artefato que será feito o upload e o path dele do repositório.
-
+Para fazer o upload do artefato, foi implementado o step com o nome "Upload artifact" que usa uma Action pré pronta do
+Marketplace. Foi necessário apenas usar o objeto with com os atributos indicando o nome do artefato que será feito o
+upload e o path dele do repositório.
 
 ### Download Artefato
 
@@ -390,8 +410,9 @@ Para fazer download de um artefato é necessário ter feito o Upload antes (exem
 
 ```
 
-Para realizar o download foi implementado o step com nome "Get build artifacts" que usa uma Action pré pronta do Marketplace. Foi necessário apenas usar o objeto with com o atributo name indicando o nome do artefato que foi feito o upload (nome de acordo com o tópico anterior)
-
+Para realizar o download foi implementado o step com nome "Get build artifacts" que usa uma Action pré pronta do
+Marketplace. Foi necessário apenas usar o objeto with com o atributo name indicando o nome do artefato que foi feito o
+upload (nome de acordo com o tópico anterior)
 
 # Gerando um Output
 
@@ -399,7 +420,6 @@ Um output pode ser utilizado em Jobs seguintes como parametro ou qualquer que se
 Para gerar um output em um Job é necessário utilizar o objeto outputs dentro do escopo do Job.
 
 Segue exemplo:
-
 
 ```
     build:
@@ -431,7 +451,6 @@ Segue exemplo:
           # usando o objeto needs acessa o job que esse job depende (para output é a melhor opcao) e acessa o atributo script-file para acessar o filename
             run: echo "${{ needs.build.outputs.script-file }}"
 ```
-
 
 # Utilizando Cache em Steps que se repetem
 
@@ -475,7 +494,8 @@ jobs:
             run: npm ci
 ```
 
-A lógica do cache será em cima da pasta /.npm, então caso seja necessário utilizar o cache em outros Jobs, será necessário utilizar o step
+A lógica do cache será em cima da pasta /.npm, então caso seja necessário utilizar o cache em outros Jobs, será
+necessário utilizar o step
 onde é usado a Action de cache.
 
 Segue exemplo abaixo, onde o cache é utilizando no job "lint", "test" e "build":
@@ -571,7 +591,8 @@ Variáveis de ambiente são a melhor opção quando é necessário utilizar um n
 
 ## env
 
-É possível utilizar variáveis de ambiente direto no escopo do Workflow, Job ou Step (caso a mesma seja criada em um escopo mais específico, irá 
+É possível utilizar variáveis de ambiente direto no escopo do Workflow, Job ou Step (caso a mesma seja criada em um
+escopo mais específico, irá
 sobrescrever a do escopo anterior)
 
 Segue exemplo abaixo - Workflow com variáveis de ambiente no escopo do Workflow e também do Job
@@ -638,7 +659,6 @@ jobs:
 
 ```
 
-
 ## Secrets
 
 Em caso de dados sensíveis, como password e usuário, é possível armazenar
@@ -653,10 +673,9 @@ Na aba Security, no lado esquerdo, clicar em Secrets and variables > Actions
 Basta apenas clicar em New repository secret, e adicionar a chave e valor
 ![Adicionar secrets ou variaveis](https://i.imgur.com/sFU0e3r.png)
 
-
 Para utilizar os secrets criados, segue exemplo abaixo:
 
-é possível acessar através de ${{ secrets.NOME_SECRET }}, porém ao tentar exibir no terminal, o GitHub irá anonimizar 
+é possível acessar através de ${{ secrets.NOME_SECRET }}, porém ao tentar exibir no terminal, o GitHub irá anonimizar
 escondendo o valor
 
 ```
@@ -731,8 +750,6 @@ Também é possível escolher uma branch específica para a utilização das Sec
 
 ![Environment Conditions](https://i.imgur.com/JNV2TQq.png)
 
-
-
 # Controlando fluxo de Jobs e Steps
 
 ## Condição IF
@@ -742,8 +759,9 @@ Também é possível escolher uma branch específica para a utilização das Sec
 No exemplo abaixo é utilizado uma condição IF após o comando de rodas os testes ser executado.
 O IF utilizado no Step seguinte ao que executa os testes.
 
-Para o IF funcionar corretamente em um contexto de falha, foi necessário acrescentar uma função especial do GitHub Actions,
-a função failure(). Ela verifica se houve alguma falha nos Steps e Jobs anteriores. Caso ela não seja adicionada, quando 
+Para o IF funcionar corretamente em um contexto de falha, foi necessário acrescentar uma função especial do GitHub
+Actions,
+a função failure(). Ela verifica se houve alguma falha nos Steps e Jobs anteriores. Caso ela não seja adicionada, quando
 um dos Steps ou Jobs anteriores falharem, o Workflow para de rodar, e com a função failure(), dá para escolher
 qual Step será executado se algo falhar.
 
@@ -795,6 +813,7 @@ https://docs.github.com/en/actions/learn-github-actions/expressions
 
 Um outro exemplo de uso para a função failure():
 Caso algum Job ou Step falhe, esse Job "report" será executado.
+
 ```
   report:
     needs: [primeiro-job-do-workflow, ultimo-job-do-workflow]
@@ -807,10 +826,12 @@ Caso algum Job ou Step falhe, esse Job "report" será executado.
           echo "${{ toJson(github) }}"
 ```
 
-É importante ressaltar que no atributo needs é necessário ter o primeiro e o ultimo job do workflow, para não ser executado antes
+É importante ressaltar que no atributo needs é necessário ter o primeiro e o ultimo job do workflow, para não ser
+executado antes
 que algum Job ou Step falhe.
 
-Para o Workflow continuar rodando, é necessário adicionar o atributo continue-on-error: true. Caso contrário, quando o step falhar
+Para o Workflow continuar rodando, é necessário adicionar o atributo continue-on-error: true. Caso contrário, quando o
+step falhar
 o Workflow irá parar
 
 ```
@@ -837,13 +858,79 @@ e a conclusão, por causa do uso do continue-on-error, é de sucesso
 steps.run-tests.outcome ->  usando outcome ele pega o resultado antes do continue-on-error, ou seja,
 ele pega o resultado correto do step
 
+# Usando estratégia Matrix (configurações multiplas)
 
-# Usando estratégia Matrix
-Configurações multiplas
+Também é possível rodar um Workflow utilizando mais de uma configuração.
+Exemplo: Tenho te testar uma aplicação utilizando versão 14 do node e também a 16.
+
+```
+name: Matrix Demo
+on: push
+jobs:
+  build:
+    # Continuar a executar os jobs caso algum valor da matrix dê algum erro
+    continue-on-error: true
+    # Caso queiramos configurar o job com diferentes configurações
+    strategy:
+      # Irá executar várias vezes esse Job, em paralelo, usando configurações setadas aqui dentro do objeto matrix
+      matrix:
+        node-version: [12, 14, 16]
+        operation-system: [ubuntu-latest, windows-latest]
+    # Aplica valores setados no contexto da strategy matrix
+    runs-on: ${{ matrix.operation-system }}
+    steps:
+      - name: Get Code
+        uses: actions/checkout@v3
+      - name: Install NodeJS
+        uses: actions/setup-node@v3
+        with:
+          nome-version: 14
+      - name: Install Dependencies
+        run: npm ci
+      - name: Build project
+        run: npm run build
+```
+
+Pode ser observado que é utilizado um objeto chamado strategy, e dentro dele matrix.
+Em matrix nós criamos variáveis que aceitam array de valores (como se fosse uma matrix mesmo)
+e isso faz com que o Workflow seja executado, utilizando todos os valores setados.
+
+Para utilizar dos valores setados, utilizamos o contexto matrix para obter as configurações.
+
+```
+    runs-on: ${{ matrix.operation-system }}
+```
 
 # Reusando Workflows
 
-### Adicionando outputs a uma Workflow reusável
+Até o momento vimos como reutilizar Actions disponibilizadas no Marketplace, seguindo a documentação de cada uma.
+Para reusar um Workflow, não é muito diferente, basta que o evento disparador seja do tipo "workflow_call".
+
+Exemplo de Workflow reutilizável:
+
+```
+name: Reusable Deploy
+# evento disparado de dentro de outro Workflow
+on: workflow_call
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Output information
+        run: echo "Deploying & uploading..."
+```
+
+Para reutilizar o Workflow usado de exemplo acima, basta seguir a seguinte sintaxe:
+
+```
+  deploy:
+    uses: ./.github/workflows/11-reusable-workflow-execution-flow.yml
+```
+É bem simples, é só utilizar o atributo uses (assim como fazemos quando vamos reutilizar uma Action) e 
+refereciar seu path.
+
+### Adicionando inputs a uma Workflow reusável
+
 
 ### Secrets em Workflow reusável
 
