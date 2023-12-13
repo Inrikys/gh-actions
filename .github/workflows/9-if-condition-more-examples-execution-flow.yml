@@ -63,7 +63,7 @@ jobs:
           path: ./fifth-execution-flow/node_modules
           key: deps-node-modules-${{ hashFiles('**/package-lock.json') }}
       - name: Install dependencies
-        if: step.cache.outputs.cache-hit != 'true'
+        if: ${{ step.cache.outputs.cache-hit != 'true' }}
         working-directory: ./fifth-execution-flow
         run: npm ci
       - name: Build website
@@ -88,7 +88,7 @@ jobs:
       - name: Deploy
         run: echo "Deploying..."
   report:
-    needs: [lint, deploy]
+    needs: [ lint, deploy ]
     if: failure()
     runs-on: ubuntu-latest
     steps:
