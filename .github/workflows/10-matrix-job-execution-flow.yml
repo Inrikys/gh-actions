@@ -2,6 +2,8 @@ name: Matrix Demo
 on: push
 jobs:
   build:
+    # Continuar a executar os jobs caso algum valor da matrix dê algum erro
+    continue-on-error: true
     # Caso queiramos configurar o job com diferentes configurações
     strategy:
       # Irá executar várias vezes esse Job, em paralelo, usando configurações setadas aqui dentro do objeto matrix
