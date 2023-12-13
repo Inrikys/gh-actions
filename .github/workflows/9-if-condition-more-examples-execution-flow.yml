@@ -44,6 +44,7 @@ jobs:
         id: run-tests
         working-directory: ./fifth-execution-flow
         run: npm run test
+      - name: Upload artifact
         if: ${{ failure() && steps.run-tests.outcome == 'failure' }}
         uses: actions/upload-artifact@v3
         with:
