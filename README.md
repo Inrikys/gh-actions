@@ -809,3 +809,31 @@ Caso algum Job ou Step falhe, esse Job "report" será executado.
 
 É importante ressaltar que no atributo needs é necessário ter o primeiro e o ultimo job do workflow, para não ser executado antes
 que algum Job ou Step falhe.
+
+Para o Workflow continuar rodando, é necessário adicionar o atributo continue-on-error: true. Caso contrário, quando o step falhar
+o Workflow irá parar
+
+```
+      - name: Test code
+        # Caso esse Step falhe, o Workflow continua
+        # em steps.idDesseStep.conclusion seria success nesse caso
+        # caso queria saber se o Step realmente falhou, é usado o outcome invés do conclusion
+        continue-on-error: true
+        id: run-tests
+        working-directory: ./forth-execution-flow
+        run: npm run test
+      - name: Upload test report
+        if: ${{ failure() && steps.run-tests.outcome == 'failure' }}
+        uses: actions/upload-artifact@v3
+        with:
+          name: test-report
+          path: ./forth-execution-flow/test.json
+```
+
+Caso continue-on-error esteja em true, a conclusão do step seria sucesso
+steps.<step_id>.conclusion -> o resultado seria true, pois é a conclusão do step
+e a conclusão, por causa do uso do continue-on-error, é de sucesso
+
+steps.run-tests.outcome ->  usando outcome ele pega o resultado antes do continue-on-error, ou seja,
+ele pega o resultado correto do step
+
