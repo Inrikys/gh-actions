@@ -1,4 +1,4 @@
-name: Deployment
+name: Deployment using custom actions
 on:
   push:
     branches:
@@ -13,7 +13,7 @@ jobs:
         id: cache
         uses: actions/cache@v3
         with:
-          path: ./custom-actions-examples-app/node_modules
+          path: ./node_modules
           key: deps-node-modules-${{ hashFiles('**/package-lock.json') }}
       - name: Install dependencies
         working-directory: ./custom-actions-examples-app
@@ -31,7 +31,7 @@ jobs:
         id: cache
         uses: actions/cache@v3
         with:
-          path: ./custom-actions-examples-app/node_modules
+          path: ./node_modules
           key: deps-node-modules-${{ hashFiles('**/package-lock.json') }}
       - name: Install dependencies
         if: steps.cache.outputs.cache-hit != 'true'
@@ -57,7 +57,7 @@ jobs:
         id: cache
         uses: actions/cache@v3
         with:
-          path: ./custom-actions-examples-app/node_modules
+          path: ./node_modules
           key: deps-node-modules-${{ hashFiles('**/package-lock.json') }}
       - name: Install dependencies
         if: steps.cache.outputs.cache-hit != 'true'
