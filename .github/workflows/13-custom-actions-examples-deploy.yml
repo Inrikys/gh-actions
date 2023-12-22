@@ -13,14 +13,14 @@ jobs:
         id: cache
         uses: actions/cache@v3
         with:
-          path: ./node_modules
+          path: ./custom-action-example-app/node_modules
           key: deps-node-modules-${{ hashFiles('**/package-lock.json') }}
       - name: Install dependencies
-        working-directory: ./custom-actions-examples-app
+        working-directory: ./custom-action-example-app
         if: steps.cache.outputs.cache-hit != 'true'
         run: npm ci
       - name: Lint code
-        working-directory: ./custom-actions-examples-app
+        working-directory: ./custom-action-example-app
         run: npm run lint
   test:
     runs-on: ubuntu-latest
@@ -31,22 +31,22 @@ jobs:
         id: cache
         uses: actions/cache@v3
         with:
-          path: ./node_modules
+          path: ./custom-action-example-app/node_modules
           key: deps-node-modules-${{ hashFiles('**/package-lock.json') }}
       - name: Install dependencies
         if: steps.cache.outputs.cache-hit != 'true'
-        working-directory: ./custom-actions-examples-app
+        working-directory: ./custom-action-example-app
         run: npm ci
       - name: Test code
         id: run-tests
-        working-directory: ./custom-actions-examples-app
+        working-directory: ./custom-action-example-app
         run: npm run test
       - name: Upload test report
         if: failure() && steps.run-tests.outcome == 'failure'
         uses: actions/upload-artifact@v3
         with:
           name: test-report
-          path: ./custom-actions-examples-app/test.json
+          path: ./custom-action-example-app/test.json
   build:
     needs: test
     runs-on: ubuntu-latest
@@ -57,20 +57,20 @@ jobs:
         id: cache
         uses: actions/cache@v3
         with:
-          path: ./node_modules
+          path: ./custom-action-example-app/node_modules
           key: deps-node-modules-${{ hashFiles('**/package-lock.json') }}
       - name: Install dependencies
         if: steps.cache.outputs.cache-hit != 'true'
-        working-directory: ./custom-actions-examples-app
+        working-directory: ./custom-action-example-app
         run: npm ci
       - name: Build website
-        working-directory: ./custom-actions-examples-app
+        working-directory: ./custom-action-example-app
         run: npm run build
       - name: Upload artifacts
         uses: actions/upload-artifact@v3
         with:
           name: dist-files
-          path: ./custom-actions-examples-app/dist
+          path: ./custom-action-example-app/dist
   deploy:
     needs: build
     runs-on: ubuntu-latest
