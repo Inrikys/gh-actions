@@ -15,7 +15,7 @@ jobs:
       - name: Load & cache dependencies
         uses: ./.github/actions/cached-deps
       - name: Output information
-        run: echo "Cache used? ${{ steps.cache-deps.outputs.used-cache }}
+        run: echo "Cache used? ${{ steps.cache-deps.outputs.used-cache }}"
       - name: Lint code
         working-directory: ./custom-action-example-app
         run: npm run lint
