@@ -1032,11 +1032,16 @@ Em um Workflow reusável, também é possível capturar outputs
 Usado quando é necessário ter controle completo do ambiente que a aplicação será executada
 
 ## Usando Service Containers ("Services")
-Caso seja necessário realizar testes em um banco de dados que não está no contexto de produção,
+Para contextos mais isolados, como, caso seja necessário realizar testes em um banco de dados que não está no contexto de produção,
 pode ser usado para subir um novo banco de dados de testes.
 
 Jobs podem se comunicar e expor services
 
 Para realizar a comunicação entre services containers, o github utiliza a label da service.
 por exemplo: Se a label é mongodb, o endereço de comunicação vai ser mongodb (tipo localhost)
+
+
+
+para esse sistema de label funcionar, é necessário o ambiente rodar dentro de um container, caso contrário, seria necessário adicionar
+o ip address (127.0.0.1:27017) e configurar as portas em services
 
