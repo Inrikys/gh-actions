@@ -1045,3 +1045,25 @@ por exemplo: Se a label é mongodb, o endereço de comunicação vai ser mongodb
 para esse sistema de label funcionar, é necessário o ambiente rodar dentro de um container, caso contrário, seria necessário adicionar
 o ip address (127.0.0.1:27017) e configurar as portas em services
 
+
+
+# Custom Actions
+Motivos para criar uma Action customizada
+-> Simplificar Steps de um Workflow
+-> Reusar entre os Workflows
+-> Contribuir com a comunidade, publicando uma Action não existente
+
+## Tipos de Actions
+-> JavaScript  
+-> Docker  
+-> Composite  
+
+
+JavaScript -> Executa um script em JavaScript.  
+
+Docker -> Cria um Dockerfile e roda qualquer task e em qualquer linguagem dentro do container  
+
+Composite -> Combinação de multiplos Workflows, comandos runs e uses. Usa apenas conhecimento de GitHub Actions
+apra criação de Actions  
+
+
