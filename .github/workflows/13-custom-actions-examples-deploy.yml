@@ -9,16 +9,11 @@ jobs:
     steps:
       - name: Get code
         uses: actions/checkout@v3
-      - name: Cache dependencies
-        id: cache
-        uses: actions/cache@v3
-        with:
-          path: ./custom-action-example-app/node_modules
-          key: deps-node-modules-${{ hashFiles('**/package-lock.json') }}
-      - name: Install dependencies
-        working-directory: ./custom-action-example-app
-        if: steps.cache.outputs.cache-hit != 'true'
-        run: npm ci
+        # Usar action criada
+        # se for uma action de um repositório -> nomeConta/nomeRepositorio
+        # nesse caso, é uma action local, então é só passar o path
+      - name: Load & cache dependencies
+        uses: ../.github/actions/cached-deps
       - name: Lint code
         working-directory: ./custom-action-example-app
         run: npm run lint
