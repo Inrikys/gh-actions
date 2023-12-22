@@ -13,7 +13,7 @@ jobs:
         # se for uma action de um repositório -> nomeConta/nomeRepositorio
         # nesse caso, é uma action local, então é só passar o path
       - name: Load & cache dependencies
-        uses: ./../.github/actions/cached-deps
+        uses: ./.github/actions/cached-deps
       - name: Lint code
         working-directory: ./custom-action-example-app
         run: npm run lint
