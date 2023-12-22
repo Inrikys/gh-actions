@@ -1029,3 +1029,11 @@ Em um Workflow reusável, também é possível capturar outputs
 
 
 # Usando Docker Containers
+Usado quando é necessário ter controle completo do ambiente que a aplicação será executada
+
+## Usando Service Containers ("Services")
+Caso seja necessário realizar testes em um banco de dados que não está no contexto de produção,
+pode ser usado para subir um novo banco de dados de testes.
+
+Jobs podem se comunicar e expor services
+
