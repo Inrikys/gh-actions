@@ -1037,3 +1037,6 @@ pode ser usado para subir um novo banco de dados de testes.
 
 Jobs podem se comunicar e expor services
 
+Para realizar a comunicação entre services containers, o github utiliza a label da service.
+por exemplo: Se a label é mongodb, o endereço de comunicação vai ser mongodb (tipo localhost)
+
