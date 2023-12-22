@@ -26,12 +26,16 @@ jobs:
           path: ~/.npm
           key: ${{ env.CACHE_KEY }}-${{ hashFiles('**/package-lock.json') }}
       - name: Install dependencies
+        working-directory: ./docker-examples-app
         run: npm ci
       - name: Run server
+        working-directory: ./docker-examples-app
         run: npm start & npx wait-on http://127.0.0.1:$PORT # requires MongoDB Atlas to accept requests from anywhere!
       - name: Run tests
+        working-directory: ./docker-examples-app
         run: npm test
       - name: Output information
+        working-directory: ./docker-examples-app
         run: |
           echo "MONGODB_USERNAME: $MONGODB_USERNAME"
   deploy:
