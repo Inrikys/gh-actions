@@ -11,6 +11,9 @@ jobs:
   test:
     environment: testing
     runs-on: ubuntu-latest
+    # https://hub.docker.com/_/node
+    container:
+      image: node:16
     env:
       MONGODB_CONNECTION_PROTOCOL: mongodb+srv
       MONGODB_CLUSTER_ADDRESS: cluster0.ntrwp.mongodb.net
@@ -35,7 +38,6 @@ jobs:
         working-directory: ./docker-examples-app
         run: npm test
       - name: Output information
-        working-directory: ./docker-examples-app
         run: |
           echo "MONGODB_USERNAME: $MONGODB_USERNAME"
   deploy:
