@@ -930,8 +930,96 @@ Para reutilizar o Workflow usado de exemplo acima, basta seguir a seguinte sinta
 refereciar seu path.
 
 ### Adicionando inputs a uma Workflow reusável
+Assim como as actions, os workflows reusáveis também aceitam parametros utilizando o objeto "with"
+
+Para isso, abaixo do evento workflow_call, basta apenas inserir  os inputs/parametros que se deseja receber ao utilizar o Workflow
+
+No exemplo abaixo, foi configurado o parametro "artifact-name", podendo também ser configurado valor padrão,
+se é obrigatório, tipo e descrição.
+
+```
+name: Reusable Deploy With Input
+on:
+  # Adicionando inputs à chamada desse workflow
+  workflow_call:
+    inputs:
+      artifact-name:
+        description: The name of the deployable artifact files
+        required: false
+        # caso não seja obrigatório, dá para setar um valor padrão
+        default: dist
+        type: string
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Get Code
+        uses: actions/download-artifact@v3
+        with:
+          name: ${{ inputs.artifact-name }}
+      - name: List files
+        run: ls
+      - name: Output information
+        run: echo "Deploying & uploading..."
+```
+
+Exemplo de uso do Workflow acima 
+
+```
+  deploy:
+    needs: build
+    uses: ./.github/workflows/11-reusable-input-workflow-execution-flow.yml
+    with:
+      artifact-name: dist-files
+```
 
 
 ### Secrets em Workflow reusável
 
+Também é possível passar secrets do GitHub. O objeto secrets fica no mesmo nível que inputs
+
+```
+name: Reusable Deploy With Secret Input
+on:
+  # Adicionando inputs à chamada desse workflow
+  workflow_call:
+    inputs:
+      artifact-name:
+        description: The name of the deployable artifact files
+        required: false
+        # caso não seja obrigatório, dá para setar um valor padrão
+        default: dist
+        type: string
+    secrets:
+      some-secret:
+        required: false
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Get Code
+        uses: actions/download-artifact@v3
+        with:
+          name: ${{ inputs.artifact-name }}
+      - name: List files
+        run: ls
+      - name: Output information
+        run: echo "Deploying & uploading..."
+```
+
+Para passar os Secrets como parametro:
+
+```
+    deploy:
+    needs: build
+    uses: ./.github/workflows/11-reusable-input-workflow-execution-flow.yml
+    with:
+      artifact-name: dist-files
+      ## Aqui passamos os secrets (lembrando que deve ser cadastrado no github
+#    secrets:
+#      some-secret: ${{ secrets.some-secret }}
+```
+
+
 ### Outputs em Workflow reusável
+Em um Workflow reusável, também é possível capturar outputs
