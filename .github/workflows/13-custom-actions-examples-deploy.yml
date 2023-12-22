@@ -27,6 +27,8 @@ jobs:
         # nesse caso, é uma action local, então é só passar o path
       - name: Load & cache dependencies
         uses: ./.github/actions/cached-deps
+        with:
+          caching: 'false'
       - name: Test code
         id: run-tests
         working-directory: ./custom-action-example-app

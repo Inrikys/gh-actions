@@ -1,10 +1,17 @@
 name: 'Get & Cache Dependencies'
 description: 'Get the dependencies (via npm) and cache them'
+inputs:
+  # nome caching é a gente que decide
+  caching:
+    description: 'Whether to cache dependencies or not.'
+    required: false
+    default: 'true'
 runs:
   # Action Type
   using: 'composite'
   steps:
     - name: Cache dependencies
+      if: inputs.caching == 'true'
       id: cache
       uses: actions/cache@v3
       with:
@@ -12,7 +19,7 @@ runs:
         key: deps-node-modules-${{ hashFiles('**/package-lock.json') }}
     - name: Install dependencies
       working-directory: ./custom-action-example-app
-      if: steps.cache.outputs.cache-hit != 'true'
+      if: steps.cache.outputs.cache-hit != 'true' || inputs.caching != 'true'
       run: npm ci
       # é necessário quando o comando run é usado
       shell: bash
