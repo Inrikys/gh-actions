@@ -1,0 +1,83 @@
+name: Deployment using custom actions
+on:
+  push:
+    branches:
+      - main
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Get code
+        uses: actions/checkout@v3
+        # Usar action criada
+        # se for uma action de um repositório -> nomeConta/nomeRepositorio
+        # nesse caso, é uma action local, então é só passar o path
+      - name: Load & cache dependencies
+        uses: ./.github/actions/cached-deps
+      - name: Output information
+        run: echo "Cache used? ${{ steps.cache-deps.outputs.used-cache }}"
+      - name: Lint code
+        working-directory: ./custom-action-example-app
+        run: npm run lint
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Get code
+        uses: actions/checkout@v3
+        # Usar action criada
+        # se for uma action de um repositório -> nomeConta/nomeRepositorio
+        # nesse caso, é uma action local, então é só passar o path
+      - name: Load & cache dependencies
+        uses: ./.github/actions/cached-deps
+        # Usando o input
+        with:
+          caching: 'false'
+      - name: Test code
+        id: run-tests
+        working-directory: ./custom-action-example-app
+        run: npm run test
+      - name: Upload test report
+        if: failure() && steps.run-tests.outcome == 'failure'
+        uses: actions/upload-artifact@v3
+        with:
+          name: test-report
+          path: ./custom-action-example-app/test.json
+  build:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Get code
+        uses: actions/checkout@v3
+        # Usar action criada
+        # se for uma action de um repositório -> nomeConta/nomeRepositorio
+        # nesse caso, é uma action local, então é só passar o path
+      - name: Load & cache dependencies
+        uses: ./.github/actions/cached-deps
+      - name: Build website
+        working-directory: ./custom-action-example-app
+        run: npm run build
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: dist-files
+          path: ./custom-action-example-app/dist
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Get code
+        uses: actions/checkout@v3
+      - name: Get build artifacts
+        uses: actions/download-artifact@v3
+        with:
+          name: dist-files
+          path: ./dist
+      - name: Output contents
+        run: ls
+      - name: Deploy site
+        run: echo "Deploying..."
+  information:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Run custom action
+        uses: ./.github/actions/deploy-s3-javascript
