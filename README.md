@@ -1024,8 +1024,60 @@ Para passar os Secrets como parametro:
 ### Outputs em Workflow reusável
 Em um Workflow reusável, também é possível capturar outputs
 
+Para declarar outputs em um Workflow, basta seguir o seguinte exemplo:
+
+Deve ser declarado no escopo do evento e também no escopo da Job
+
+quando o step com o id set-result é executado, ele escreve success dentro da variavel step-result, que é armazenada no contexto
+do $GITHUB_OUTPUT, como o output está declarado no contexto do Job e escutando a variável step-result, vai ser esse valor que será
+emitido, mas será emitido dentro da variável result, que é encontrado em output de escopo mais externo.
+
+```
+name: Reusable Deploy With Secret Input
+on:
+  # Adicionando outputs
+  workflow_call:
+    outputs:
+      result:
+        description: The result of the deployment operation
+        value: ${{ jobs.deploy.outputs.outcome }}
+jobs:
+  deploy:
+    outputs:
+      outcome: ${{ steps.set-result.outputs.step-result }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Get Code
+        uses: actions/download-artifact@v3
+        with:
+          name: ${{ inputs.artifact-name }}
+      - name: List files
+        run: ls
+      - name: Output information
+        run: echo "Deploying & uploading..."
+      - name: Set result output
+        id: set-result
+        run: echo "step-result=success" >> $GITHUB_OUTPUT
+
+```
 
 
+Para utilizar os outputs fora da Workflow, basta após o uso do Workflow acessar o contexto onde ele foi utilizado e
+acessar o objeto de output. Exemplo:
+No Job deploy é utilizado o Workflow e no Job seguinte é acessado o output dele
+
+```
+  deploy:
+    needs: build
+    uses: ./.github/workflows/11-reusable-output-workflow-execution-flow.yml
+  print-deploy-result:
+    needs: deploy
+    runs-on: ubuntu-latest
+    steps:
+      - name: Print deploy output
+        ## result é o nome do output setado no workflow reusável
+        run: echo "${{ needs.deploy.outputs.result }}"
+```
 
 
 # Usando Docker Containers

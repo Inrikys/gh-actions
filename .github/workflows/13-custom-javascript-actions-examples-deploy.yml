@@ -1,4 +1,4 @@
-name: Deployment using custom actions
+name: JavaScript - Deployment using custom actions
 on:
   push:
     branches:
