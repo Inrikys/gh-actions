@@ -1083,21 +1083,211 @@ No Job deploy é utilizado o Workflow e no Job seguinte é acessado o output del
 # Usando Docker Containers
 Usado quando é necessário ter controle completo do ambiente que a aplicação será executada
 
+O exemplo a seguir ilustra como é utilizado um container com imagem node.
+A imagem pode ser obtida através de um docker registry como o Docker Hub (https://hub.docker.com/_/node)
+
+
+```
+  name: Deployment (Container)
+on:
+  push:
+    branches:
+      - main
+      - dev
+env:
+  CACHE_KEY: node-deps
+  MONGODB_DB_NAME: ${{ secrets.MONGODB_DB_NAME }}
+jobs:
+  test:
+    environment: testing
+    runs-on: ubuntu-latest
+    # https://hub.docker.com/_/node
+    container:
+      image: node:16
+    env:
+      MONGODB_CONNECTION_PROTOCOL: mongodb+srv
+      MONGODB_CLUSTER_ADDRESS: cluster0.ntrwp.mongodb.net
+      MONGODB_USERNAME: ${{ secrets.MONGODB_USERNAME }}
+      MONGODB_PASSWORD: ${{ secrets.MONGODB_PASSWORD }}
+      PORT: 8080
+    steps:
+      - name: Get Code
+        uses: actions/checkout@v3
+      - name: Cache dependencies
+        uses: actions/cache@v3
+        with:
+          path: ~/.npm
+          key: ${{ env.CACHE_KEY }}-${{ hashFiles('**/package-lock.json') }}
+      - name: Install dependencies
+        working-directory: ./docker-examples-app
+        run: npm ci
+      - name: Run server
+        working-directory: ./docker-examples-app
+        run: npm start & npx wait-on http://127.0.0.1:$PORT # requires MongoDB Atlas to accept requests from anywhere!
+      - name: Run tests
+        working-directory: ./docker-examples-app
+        run: npm test
+      - name: Output information
+        run: |
+          echo "MONGODB_USERNAME: $MONGODB_USERNAME"
+  deploy:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Output information
+        env:
+          PORT: 3000
+        run: |        
+          echo "MONGODB_DB_NAME: $MONGODB_DB_NAME"
+          echo "MONGODB_USERNAME: $MONGODB_USERNAME"
+          echo "${{ env.PORT }}"
+```
+
+
 ## Usando Service Containers ("Services")
 Para contextos mais isolados, como, caso seja necessário realizar testes em um banco de dados que não está no contexto de produção,
 pode ser usado para subir um novo banco de dados de testes.
 
-Jobs podem se comunicar e expor services
+No exemplo abaixo, é utilizado um container node com um service de mongodb, que seria um banco mongodb "local" para realizar testes
+sem afetar nenhum ambiente específico ou até mesmo agilizar a velocidade de testes de integração.
 
+```
+name: Deployment - Service (Container)
+on:
+  push:
+    branches:
+      - main
+      - dev
+env:
+  CACHE_KEY: node-deps
+  MONGODB_DB_NAME: ${{ secrets.MONGODB_DB_NAME }}
+jobs:
+  test:
+    environment: testing
+    runs-on: ubuntu-latest
+    # https://hub.docker.com/_/node
+    container:
+      image: node:16
+    env:
+      MONGODB_CONNECTION_PROTOCOL: mongodb
+      MONGODB_CLUSTER_ADDRESS: mongodb
+      MONGODB_USERNAME: root
+      MONGODB_PASSWORD: example
+      PORT: 8080
+    # Contexto de um JOB
+    # vai rodar apenas durante a execução do JOB
+    services:
+      # pode ser qualquer nome aqui
+      mongodb:
+        # todos os services sempre rodam em containers
+        image: mongo
+        env:
+          MONGO_INITDB_ROOT_USERNAME: root
+          MONGO_INITDB_ROOT_PASSWORD: example
+    steps:
+      - name: Get Code
+        uses: actions/checkout@v3
+      - name: Cache dependencies
+        uses: actions/cache@v3
+        with:
+          path: ~/.npm
+          key: ${{ env.CACHE_KEY }}-${{ hashFiles('**/package-lock.json') }}
+      - name: Install dependencies
+        working-directory: ./docker-examples-app
+        run: npm ci
+      - name: Run server
+        working-directory: ./docker-examples-app
+        run: npm start & npx wait-on http://127.0.0.1:$PORT # requires MongoDB Atlas to accept requests from anywhere!
+      - name: Run tests
+        working-directory: ./docker-examples-app
+        run: npm test
+      - name: Output information
+        run: |
+          echo "MONGODB_USERNAME: $MONGODB_USERNAME"
+  deploy:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Output information
+        env:
+          PORT: 3000
+        run: |        
+          echo "MONGODB_DB_NAME: $MONGODB_DB_NAME"
+          echo "MONGODB_USERNAME: $MONGODB_USERNAME"
+          echo "${{ env.PORT }}"
+```
+
+Jobs podem se comunicar e expor services
 Para realizar a comunicação entre services containers, o github utiliza a label da service.
 por exemplo: Se a label é mongodb, o endereço de comunicação vai ser mongodb (tipo localhost)
 
 
-
-para esse sistema de label funcionar, é necessário o ambiente rodar dentro de um container, caso contrário, seria necessário adicionar
+Para esse sistema de label funcionar, é necessário o ambiente rodar dentro de um container, caso contrário, seria necessário adicionar
 o ip address (127.0.0.1:27017) e configurar as portas em services
 
+Exemplo sem uso de um container node (com a necessidade de utilizar o ip address, pois é o container que faz o network utilizando labels funcionar)
 
+```
+name: Deployment - Service (Without Container)
+on:
+  push:
+    branches:
+      - main
+      - dev
+env:
+  CACHE_KEY: node-deps
+  MONGODB_DB_NAME: ${{ secrets.MONGODB_DB_NAME }}
+jobs:
+  test:
+    environment: testing
+    runs-on: ubuntu-latest
+    env:
+      MONGODB_CONNECTION_PROTOCOL: mongodb
+      # necessário setar ip e portas
+      MONGODB_CLUSTER_ADDRESS: 127.0.0.1:27017
+      MONGODB_USERNAME: root
+      MONGODB_PASSWORD: example
+      PORT: 8080
+    services:
+      mongodb:
+        image: mongo
+        ports:
+          - 27017:27017
+        env:
+          MONGO_INITDB_ROOT_USERNAME: root
+          MONGO_INITDB_ROOT_PASSWORD: example
+    steps:
+      - name: Get Code
+        uses: actions/checkout@v3
+      - name: Cache dependencies
+        uses: actions/cache@v3
+        with:
+          path: ~/.npm
+          key: ${{ env.CACHE_KEY }}-${{ hashFiles('**/package-lock.json') }}
+      - name: Install dependencies
+        working-directory: ./docker-examples-app
+        run: npm ci
+      - name: Run server
+        working-directory: ./docker-examples-app
+        run: npm start & npx wait-on http://127.0.0.1:$PORT # requires MongoDB Atlas to accept requests from anywhere!
+      - name: Run tests
+        working-directory: ./docker-examples-app
+        run: npm test
+      - name: Output information
+        run: |
+          echo "MONGODB_USERNAME: $MONGODB_USERNAME"
+  deploy:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Output information
+        env:
+          PORT: 3000
+        run: |        
+          echo "MONGODB_DB_NAME: $MONGODB_DB_NAME"
+          echo "MONGODB_USERNAME: $MONGODB_USERNAME"
+          echo "${{ env.PORT }}"
+```
 
 # Custom Actions
 Motivos para criar uma Action customizada
