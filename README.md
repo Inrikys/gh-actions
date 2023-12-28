@@ -592,11 +592,9 @@ Variáveis de ambiente são a melhor opção quando é necessário utilizar um n
 ## env
 
 É possível utilizar variáveis de ambiente direto no escopo do Workflow, Job ou Step (caso a mesma seja criada em um
-escopo mais específico, irá
-sobrescrever a do escopo anterior)
+escopo mais específico, irá sobrescrever a do escopo anterior)
 
 Segue exemplo abaixo - Workflow com variáveis de ambiente no escopo do Workflow e também do Job
-
 escopo do Workflow pode ser resgatada da seguinte maneira -> $MONGODB_USERNAME
 escopo do Job pode ser resgatada da seguinte maneira -> ${{ env.MONGODB_USERNAME }}
 
@@ -1298,8 +1296,7 @@ Motivos para criar uma Action customizada
 ## Tipos de Actions
 -> JavaScript  
 -> Docker  
--> Composite  
-
+-> Composite
 
 JavaScript -> Executa um script em JavaScript.  
 
@@ -1308,4 +1305,267 @@ Docker -> Cria um Dockerfile e roda qualquer task e em qualquer linguagem dentro
 Composite -> Combinação de multiplos Workflows, comandos runs e uses. Usa apenas conhecimento de GitHub Actions
 apra criação de Actions  
 
+### Estrutura de uma Action
+
+Se caso a Action estiver em um repositório, isolada, basta apenas referenciar com nomeConta/nomeRepositorio.
+No caso do exemplo que temos aqui, são Actions locais, então é só passar o path
+
+As actions locais ficam no diretório .github > actions, e por padrão é necessário criar um diretório para cada action, por exemplo:
+quero criar uma action que faz deploy de um site estático para o S3 com o nome "deploy-s3-javascript". Primeiro devo criar um
+diretório e dentro dele criar os arquivos necessários. (nesse repositório temos esse exemplo).
+
+Dentro do diretório "deploy-s3-javascript" deve ser criado um arquivo action.yml (que é padrão para qualquer tipo de action) e um arquivo que será
+o nosso script js.
+
+
+## Exemplo de Action JavaScript
+
+### action.yml 
+Dentro do arquivo action.yml, podemos declarar os inputs e outputs e dentro do objeto runs, declaramos a versão do node
+e arquivo que possui o script js
+
+```
+name: 'Deploy to AWS S3'
+description: 'Deploy a static website via AWS S3.'
+inputs:
+  bucket:
+    description: 'The S3 bucket name.'
+    required: true
+  bucket-region:
+    description: 'The region of the S3 bucket.'
+    required: false
+    default: 'us-east-1'
+  dist-folder:
+    description: 'The folder containing the deployable files.'
+    required: true
+outputs:
+  website-url:
+    description: 'The URL of the deployed website.'
+runs:
+  # https://docs.github.com/en/actions/creating-actions/creating-a-javascript-action
+  using: 'node16'
+  main: 'main.js'
+```
+
+### script.js
+
+No exemplo abaixo, fazemos importes de 3 libs do GitHub Actions, onde é possível manipular os inputs, outputs, contexto do GitHub
+e terminal shell do ubuntu
+
+obs: é observado que para acessar essas libs, é necessário possuir a pasta node_modules para que a Action funcione de maneira
+"standalone", sem a necessidade de instalar dependencias no momento que for reutilizada.
+
+Dependencias necessárias:
+npm install @actions/core @actions/github @actions/exec
+(com o uso do npm, é necessário também executar o npm init para utilizar o arquivo package.json para gerenciar as dependências)
+
+```
+const core = require('@actions/core');
+const github = require('@actions/github');
+const exec = require('@actions/exec');
+
+function run() {
+    // 1- Get some input values set on action.yml
+   const bucket = core.getInput('bucket', { require: true})
+   const bucketRegion = core.getInput('bucket-region', { require: true})
+   const distFolder = core.getInput('dist-folder', { require: true})
+
+   // 2 - Upload files
+   const s3Uri = `s3://${bucket}`
+   exec.exec(`aws s3 sync ${distFolder} ${s3Uri} --region ${bucketRegion}`)
+
+   const websiteUrl = `http://${bucket}.s3-website-${bucketRegion}.amazonaws.com`;
+   core.setOutput('website-url', websiteUrl);
+}
+
+run();
+```
+
+### Usando a Action deploy-s3-javascript
+No Job a seguir, é utilizada a action, inserindo variáveis de ambiente que são setadas direto no ubuntu, para serem utilizadas
+pela AWS, inputs dentro do parametro with e  no step seguinte a obtenção do output setado.
+
+```
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Get code
+        uses: actions/checkout@v3
+      - name: Get build artifacts
+        uses: actions/download-artifact@v3
+        with:
+          name: dist-files
+          path: ./dist
+      - name: Output contents
+        run: ls
+      - name: Deploy site
+        id: deploy
+        uses: ./.github/actions/deploy-s3-javascript
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        with:
+          bucket: inrikys-website
+          dist-folder: ./dist
+          bucket-region: us-east-1
+      - name: Output information
+        run: |
+          echo "Live URL: ${{ steps.deploy.outputs.website-url }}"
+```
+
+## Exemplo de Action Composite
+
+Esse tipo de Action é o mais simples, pois a estrutura é similar a de um Workflow
+
+Por padrão, deve ser criado um diretório dentro de .github > actions com o nome da Action e com um arquivo action.yml dentro.
+Um diferença aqui é que quando o comando run é utilizado nos Steps, é necessário especificar qual shell será utilizado,
+no caso do exemplo abaixo, será o bash.
+
+Nesse exemplo, é reusado o ato de cachear as dependencias, que é muito utilizado nos exemplos de Workflow dentro desse repositório. Dá para ver
+como criar uma Action para reduzir o tamanho de um Workflow e deixar Steps reutilizáveis.
+
+```
+name: 'Get & Cache Dependencies'
+description: 'Get the dependencies (via npm) and cache them'
+inputs:
+  # nome caching é a gente que decide
+  caching:
+    description: 'Whether to cache dependencies or not.'
+    required: false
+    default: 'true'
+outputs:
+  used-cache:
+    description: 'Whether the cache was used.'
+    value: ${{ steps.install.outputs.cache }}
+runs:
+  # Action Type
+  using: 'composite'
+  steps:
+    - name: Cache dependencies
+      if: inputs.caching == 'true'
+      id: cache
+      uses: actions/cache@v3
+      with:
+        path: ./custom-action-example-app/node_modules
+        key: deps-node-modules-${{ hashFiles('**/package-lock.json') }}
+    - name: Install dependencies
+      id: install
+      working-directory: ./custom-action-example-app
+      if: steps.cache.outputs.cache-hit != 'true' || inputs.caching != 'true'
+      run: |
+        npm ci
+        echo "cache='${{ inputs.caching }}'" >> $GITHUB_OUTPUT
+      # é necessário quando o comando run é usado
+      shell: bash
+```
+
+### Usando a Action Composite (cached-deps)
+
+```
+  build:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Get code
+        uses: actions/checkout@v3
+      - name: Load & cache dependencies
+        uses: ./.github/actions/cached-deps
+      - name: Build website
+        working-directory: ./custom-action-example-app
+        run: npm run build
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: dist-files
+          path: ./custom-action-example-app/dist
+```
+
+
+## Exemplo de Action Docker
+
+Nesse tipo de Action, a gente tem a liberdade de executar o script na linguagem que a gente escolher, pois o container
+que será executado terá sido configurado para a execução da linguagem escolhida.
+
+Segue exemplo com script em python. Podemos ver que os inputs e outputs também são manipulados.
+
+arquivo action.yml
+
+```
+name: 'Deploy to AWS S3 - Docker'
+description: 'Deploy a static website via AWS S3'
+inputs:
+  bucket:
+    description: 'The S3 bucket name.'
+    required: true
+  bucket-region:
+    description: 'The region of the S3 bucket.'
+    required: false
+    default: 'us-east-1'
+  dist-folder:
+    description: 'The folder containing the deployable files.'
+    required: true
+outputs:
+  website-url:
+    description: 'The URL of the deployed website.'
+runs:
+  using: 'docker'
+  image: 'Dockerfile'
+```
+
+### Dockerfile
+
+```
+FROM python:3
+
+COPY requirements.txt /requirements.txt
+
+RUN pip install -r requirements.txt
+
+COPY deployment.py /deployment.py
+
+CMD ["python", "/deployment.py"]
+```
+
+(o arquivo requirements.txt é encontrado na pasta .github > actions > deploy-s3-docker, e é usado apenas para gravar 
+dependências em python, utilizando o pip, para executar o script em python)
+
+### script.py
+```
+import os
+import boto3
+import mimetypes
+from botocore.config import Config
+
+# docker file cria um ambiente para rodar esse código
+
+def run():
+    #INPUT_NOME-DO-INPUT
+    bucket = os.environ['INPUT_BUCKET']
+    bucket_region = os.environ['INPUT_BUCKET-REGION']
+    dist_folder = os.environ['INPUT_DIST-FOLDER']
+
+    configuration = Config(region_name=bucket_region)
+
+    s3_client = boto3.client('s3', config=configuration)
+
+    for root, subdirs, files in os.walk(dist_folder):
+        for file in files:
+            s3_client.upload_file(
+                os.path.join(root, file),
+                bucket,
+                os.path.join(root, file).replace(dist_folder + '/', ''),
+                ExtraArgs={"ContentType": mimetypes.guess_type(file)[0]}
+            )
+
+    website_url = f'http://{bucket}.s3-website-{bucket_region}.amazonaws.com'
+    # The below code sets the 'website-url' output (the old ::set-output syntax isn't supported anymore - that's the only thing that changed though)
+    with open(os.environ['GITHUB_OUTPUT'], 'a') as gh_output:
+        print(f'website-url={website_url}', file=gh_output)
+
+
+if __name__ == '__main__':
+    run()
+
+```
 
