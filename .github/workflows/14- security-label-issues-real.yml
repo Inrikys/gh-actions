@@ -5,6 +5,9 @@ on:
       - opened
 jobs:
   assign-label:
+    # https://docs.github.com/en/actions/using-jobs/assigning-permissions-to-jobs
+    permissions:
+      issues: write # é uma boa prática deixar o mínimo de permissão possível para evitar comportamentos inesperados
     runs-on: ubuntu-latest
     steps:
       - name: Assign label

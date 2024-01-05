@@ -1587,7 +1587,7 @@ Workflows.
 
 ## Segurança em Workflows
 
-Exemplo de Script Injection:
+### Exemplo de Script Injection:
 
 No exemplo a seguir, o Workflow é disparado através da abertura de uma Issue.
 Nota-se que o Step utiliza o título da Issue e isso dá abertura para injeção de scripts.
@@ -1647,4 +1647,69 @@ jobs:
 
 poderia ser feito uma requisição passando um dado secreto para um site terceiro.
 
-## Trabalhando com GitHub Tokens & Permissions
+
+### Malicious Third-Party Actions
+Para previnir uma ação inesperada de uma Action, as boas práticas seriam:
+- Usar apenas Actions criadas por você
+- Usar apenas Actions criadas por autores verificados (Actions verificadas pelo GitHub)
+- Analisar códigos caso seja necessário utilizar Actions não verificadas
+
+
+### Permissions
+
+É possível restringir as permissões de um Workflow para evitar comportamentos inesperados. Isso é sempre uma boa prática.
+
+Referência:
+https://docs.github.com/en/actions/using-jobs/assigning-permissions-to-jobs
+
+O Workflow abaixo é disparado quando uma issue é criada, e ele adiciona uma tag caso o título da issue tenha a palavra "bug"
+
+```
+name: Label Issues (Permissions Example)
+on:
+  issues:
+    types:
+      - opened
+jobs:
+  assign-label:
+    # https://docs.github.com/en/actions/using-jobs/assigning-permissions-to-jobs
+    permissions:
+      issues: write # é uma boa prática deixar o mínimo de permissão possível para evitar comportamentos inesperados
+    runs-on: ubuntu-latest
+    steps:
+      - name: Assign label
+        if: contains(github.event.issue.title, 'bug')
+        run: |
+          curl -X POST \
+          --url https://api.github.com/repos/${{ github.repository }}/issues/${{ github.event.issue.number }}/labels \
+          -H 'authorization: Bearer ${{ secrets.GITHUB_TOKEN }}' \
+          -H 'content-type: application/json' \
+          -d '{
+              "labels": ["bug"]
+            }' \
+          --fail
+```
+
+O GITHUB_TOKEN gerado conforme as permissões e escopos setados em permissions.
+É importante entender que ao setar permissões pode alterar GITHUB_TOKEN que será usado em outras Action dentro do Job. 
+Pode ser que ao alterar alguma Action possa parar de funcionar dentro da Job.
+
+Em Settings > Actions > General, é possível configurar permissões de Workflows para tornar o script mais restrito.
+
+
+### Permissões de terceiros & OpenID Connect
+
+Caso seja necessário gerenciar permissões de terceiros, como por exemplo da AWS, é possível utilizar uma url (identity provider) e adicionar como provider na AWS
+e adicionar polices através da AWS.
+Invés de utilizar variáveis de ambiente usando keys da AWS, é possível apenas utilizar os permissions de acordo com a documentação abaixo.
+
+https://docs.github.com/en/actions/deployment/security-hardening-your-deployments/about-security-hardening-with-openid-connect
+https://docs.github.com/en/actions/deployment/security-hardening-your-deployments/configuring-openid-connect-in-amazon-web-services
+
+Referências sobre security:
+In addition to the concepts covered in this module, you should absolutely also explore the security guides by GitHub itself:
+General overview & important concepts: https://docs.github.com/en/actions/security-guides/security-hardening-for-github-actions
+More on Secrets: https://docs.github.com/en/actions/security-guides/encrypted-secrets
+Using GITHUB_TOKEN: https://docs.github.com/en/actions/security-guides/automatic-token-authentication
+Advanced - Preventing Fork Pull Requests Attacks: https://securitylab.github.com/research/github-actions-preventing-pwn-requests/
+Security Hardening with OpenID Connect: https://docs.github.com/en/actions/deployment/security-hardening-your-deployments/about-security-hardening-with-openid-connect
